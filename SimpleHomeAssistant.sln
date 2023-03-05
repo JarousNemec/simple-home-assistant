@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleHomeAssistantUi", "SimpleHomeAssistantUi\SimpleHomeAssistantUi.csproj", "{04111E27-6B0E-44F1-AF67-89148194B7CA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleHomeAssistantServer", "SimpleHomeAssistantServer\SimpleHomeAssistantServer.csproj", "{74FB87D1-B06A-469C-945A-134BB202BC1E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{04111E27-6B0E-44F1-AF67-89148194B7CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{04111E27-6B0E-44F1-AF67-89148194B7CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{04111E27-6B0E-44F1-AF67-89148194B7CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{04111E27-6B0E-44F1-AF67-89148194B7CA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{74FB87D1-B06A-469C-945A-134BB202BC1E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{74FB87D1-B06A-469C-945A-134BB202BC1E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{74FB87D1-B06A-469C-945A-134BB202BC1E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{74FB87D1-B06A-469C-945A-134BB202BC1E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
