@@ -1,3 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
-Console.WriteLine("Hello, MQTT");
+using SimpleHomeAssistantServer;
+
+var server = new Server();
+await server.Run();

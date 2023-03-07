@@ -8,4 +8,10 @@
         <ImplicitUsings>enable</ImplicitUsings>
     </PropertyGroup>
 
+    <ItemGroup>
+      <PackageReference Include="MQTTnet" Version="4.1.4.563" />
+      <PackageReference Include="Newtonsoft.Json" Version="13.0.3-beta1" />
+      <PackageReference Include="Simple-HTTP" Version="1.0.6" />
+    </ItemGroup>
+
 </Project>
