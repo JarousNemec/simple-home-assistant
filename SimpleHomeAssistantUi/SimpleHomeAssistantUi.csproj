@@ -14,4 +14,19 @@
       <PackageReference Include="Simple-HTTP" Version="1.0.6" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Update="Controls\DeviceCardsPanel.cs">
+        <SubType>UserControl</SubType>
+      </Compile>
+      <Compile Update="Controls\SwitchCard.cs">
+        <SubType>UserControl</SubType>
+      </Compile>
+      <Compile Update="Controls\DoubleSwitchCard.cs">
+        <SubType>UserControl</SubType>
+      </Compile>
+      <Compile Update="Controls\SensorCard.cs">
+        <SubType>UserControl</SubType>
+      </Compile>
+    </ItemGroup>
+
 </Project>

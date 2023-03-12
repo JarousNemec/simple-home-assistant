@@ -93,8 +93,8 @@ public class Server
     {
         if (jsonObject.ContainsKey("StatusNET"))
         {
-            var mac = jsonObject["StatusNET"]["Mac"].GetValue<string>();
-            if (!_manager._devicesRegister.Contains(mac))
+            var mac = jsonObject["StatusNET"]?["Mac"]?.GetValue<string>();
+            if (mac != null && !_manager._devicesRegister.Contains(mac))
             {
                 _manager._deviceInfos.Add(jsonObject);
                 _manager._devicesRegister.Add(mac);
