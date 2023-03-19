@@ -110,7 +110,7 @@ partial class DoubleSwitchCard
         // 
         AutoScaleDimensions = new SizeF(7F, 15F);
         AutoScaleMode = AutoScaleMode.Font;
-        BorderStyle = BorderStyle.Fixed3D;
+        BorderStyle = BorderStyle.FixedSingle;
         Controls.Add(_btnMore);
         Controls.Add(_btnStateSwitch2);
         Controls.Add(_btnStateSwitch1);
@@ -119,7 +119,7 @@ partial class DoubleSwitchCard
         Controls.Add(label2);
         Controls.Add(_lblFriendlyName);
         Name = "DoubleSwitchCard";
-        Size = new Size(271, 316);
+        Size = new Size(273, 318);
         ((ISupportInitialize)_picDeviceIcon).EndInit();
         ResumeLayout(false);
     }

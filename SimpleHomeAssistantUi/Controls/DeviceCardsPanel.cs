@@ -14,6 +14,7 @@ public partial class DeviceCardsPanel : UserControl
     public void LoadDevices(JsonNode devices)
     {
         var infos = devices.AsArray();
+        _pnlCards.Controls.Clear();
         for (var i = 0; i < infos.Count; i++)
         {
             if (infos[i] != null)

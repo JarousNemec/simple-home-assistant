@@ -17,18 +17,18 @@ public partial class SwitchCard : UserControl, IDeviceCard
     public void LoadInfo(JsonNode data)
     {
         Info = data;
-        
+
         _lblFriendlyName.Text = data["Status"]?["FriendlyName"]?[0]?.ToString();
         _lblIpAddress.Text = data["StatusNET"]?["IPAddress"]?.ToString();
-        
+
         switch (data["Status"]?["Module"]?.ToString())
         {
             case "1":
             case "9":
-            {
-                _picDeviceIcon.Image = Image.FromFile("./assets/images/smartSwitch.jpg");
-                break;
-            }
+                {
+                    _picDeviceIcon.Image = Image.FromFile("./assets/images/smartSwitch.jpg");
+                    break;
+                }
             case "8":
                 _picDeviceIcon.Image = Image.FromFile("./assets/images/smartSocket.jpg");
                 break;

@@ -91,14 +91,14 @@ partial class SensorCard
         // 
         AutoScaleDimensions = new SizeF(7F, 15F);
         AutoScaleMode = AutoScaleMode.Font;
-        BorderStyle = BorderStyle.Fixed3D;
+        BorderStyle = BorderStyle.FixedSingle;
         Controls.Add(_picDeviceIcon);
         Controls.Add(_btnMore);
         Controls.Add(_lblIpAddress);
         Controls.Add(label2);
         Controls.Add(_lblFriendlyName);
         Name = "SensorCard";
-        Size = new Size(271, 316);
+        Size = new Size(273, 318);
         ((ISupportInitialize)_picDeviceIcon).EndInit();
         ResumeLayout(false);
     }
