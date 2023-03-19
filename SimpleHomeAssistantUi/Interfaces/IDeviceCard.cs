@@ -2,7 +2,7 @@
 
 namespace SimpleHomeAssistantUi.Interfaces;
 
-public interface DeviceCard
+public interface IDeviceCard
 {
-    public void Load(JsonObject data);
+    public void LoadInfo(JsonNode data);
 }

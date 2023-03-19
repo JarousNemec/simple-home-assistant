@@ -4,15 +4,15 @@ using SimpleHomeAssistantUi.Interfaces;
 
 namespace SimpleHomeAssistantUi.Controls;
 
-public partial class DoubleSwitchCard : UserControl, DeviceCard
+public partial class DoubleSwitchCard : UserControl, IDeviceCard
 {
     public DoubleSwitchCard()
     {
         InitializeComponent();
     }
-
-    public void Load(JsonObject data)
+    public JsonNode Info { get; set; }
+    public void LoadInfo(JsonNode data)
     {
-        
+        Info = data;
     }
 }

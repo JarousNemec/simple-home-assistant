@@ -15,19 +15,20 @@ public class HttpService
         _client = new HttpClient();
     }
 
-    public JsonObject DownloadJsonObject(string url)
+    public JsonNode DownloadJsonObject(string url)
     {
-        var request = new HttpRequestMessage(HttpMethod.Get, url);
+        // var request = new HttpRequestMessage(HttpMethod.Get, url);
 
         try
         {
-            var response = _client.Send(request, HttpCompletionOption.ResponseContentRead);
-            if (!response.IsSuccessStatusCode)
-            {
-                return new JsonObject();
-            }
-
-            var data = JsonNode.Parse(response.Content.ReadAsStream()) as JsonObject;
+            
+            // var response = _client.SendAsync(request, HttpCompletionOption.ResponseContentRead).Result;
+            // if (!response.IsSuccessStatusCode)
+            // {
+            //     return new JsonObject();
+            // }
+            var res = _client.GetStringAsync(url).Result;
+            var data = JsonNode.Parse(res);
             return data ?? new JsonObject();
         }
         catch (Exception exception)

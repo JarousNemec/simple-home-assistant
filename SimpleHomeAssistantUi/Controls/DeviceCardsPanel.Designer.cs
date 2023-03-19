@@ -37,6 +37,7 @@ partial class DeviceCardsPanel
         // _pnlCards
         // 
         _pnlCards.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+        _pnlCards.AutoScroll = true;
         _pnlCards.BorderStyle = BorderStyle.FixedSingle;
         _pnlCards.Location = new Point(0, 0);
         _pnlCards.Name = "_pnlCards";
@@ -50,6 +51,7 @@ partial class DeviceCardsPanel
         Controls.Add(_pnlCards);
         Name = "DeviceCardsPanel";
         Size = new Size(1118, 644);
+        SizeChanged += DeviceCardsPanel_SizeChanged;
         ResumeLayout(false);
     }
 

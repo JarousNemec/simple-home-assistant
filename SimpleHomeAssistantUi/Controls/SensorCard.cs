@@ -4,15 +4,15 @@ using SimpleHomeAssistantUi.Interfaces;
 
 namespace SimpleHomeAssistantUi.Controls;
 
-public partial class SensorCard : UserControl, DeviceCard
+public partial class SensorCard : UserControl, IDeviceCard
 {
     public SensorCard()
     {
         InitializeComponent();
     }
-
-    public void Load(JsonObject data)
+    public JsonNode Info { get; set; }
+    public void LoadInfo(JsonNode data)
     {
-        
+        Info = data;
     }
 }
