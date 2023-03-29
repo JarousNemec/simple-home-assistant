@@ -1,6 +1,9 @@
-﻿using System.Text.Json.Nodes;
+﻿using System.Configuration;
+using System.Security.Cryptography;
+using System.Text.Json.Nodes;
 using System.Windows.Forms;
 using SimpleHomeAssistantUi.Interfaces;
+using SimpleHomeAssistantUi.Services;
 
 namespace SimpleHomeAssistantUi.Controls;
 
@@ -43,6 +46,28 @@ public partial class SwitchCard : UserControl, IDeviceCard
         {
             _btnStateSwitch.Text = "Turn Off";
             Power = true;
+        }
+    }
+
+    private async void _btnStateSwitch_Click(object sender, EventArgs e)
+    {
+        var http = new HttpService();
+        var config = ConfigurationManager.AppSettings;
+        var result = http.SendSwitchPowerStateCommand(config.Get("MainEndpoint")+config.Get("SwitchPowerState"),Info["Status"]?["Topic"]?.ToString()!);
+        if (result)
+        {
+            if (Power)
+            {
+                _btnStateSwitch.Text = "Turn On";
+                Power = false;
+                Info["Status"]["Power"] = "0";
+            }
+            else
+            {
+                _btnStateSwitch.Text = "Turn Off";
+                Power = true;
+                Info["Status"]["Power"] = "1";
+            }
         }
     }
 }

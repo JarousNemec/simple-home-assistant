@@ -7,11 +7,13 @@ public class MqttManager
 {
     public List<JsonObject> _deviceInfos;
     public List<string> _devicesRegister;
+    public List<string> _enableTopics;
 
     public MqttManager()
     {
         _deviceInfos = new List<JsonObject>();
         _devicesRegister = new List<string>();
+        _enableTopics = new List<string>();
     }
 
     public string GetAllDiscoveredDevicesJson()

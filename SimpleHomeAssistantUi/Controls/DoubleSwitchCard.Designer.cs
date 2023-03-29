@@ -87,6 +87,7 @@ partial class DoubleSwitchCard
         _btnStateSwitch1.TabIndex = 4;
         _btnStateSwitch1.Text = "On";
         _btnStateSwitch1.UseVisualStyleBackColor = true;
+        _btnStateSwitch1.Click += _btnStateSwitch1_Click;
         // 
         // _btnStateSwitch2
         // 
@@ -96,6 +97,7 @@ partial class DoubleSwitchCard
         _btnStateSwitch2.TabIndex = 5;
         _btnStateSwitch2.Text = "On";
         _btnStateSwitch2.UseVisualStyleBackColor = true;
+        _btnStateSwitch2.Click += _btnStateSwitch2_Click;
         // 
         // _btnMore
         // 

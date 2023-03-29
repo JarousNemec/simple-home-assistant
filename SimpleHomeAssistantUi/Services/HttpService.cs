@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Json;
+using System.Text;
 using System.Text.Json.Nodes;
 using Newtonsoft.Json.Linq;
 
@@ -17,16 +18,8 @@ public class HttpService
 
     public JsonNode DownloadJsonObject(string url)
     {
-        // var request = new HttpRequestMessage(HttpMethod.Get, url);
-
         try
         {
-            
-            // var response = _client.SendAsync(request, HttpCompletionOption.ResponseContentRead).Result;
-            // if (!response.IsSuccessStatusCode)
-            // {
-            //     return new JsonObject();
-            // }
             var res = _client.GetStringAsync(url).Result;
             var data = JsonNode.Parse(res);
             return data ?? new JsonObject();
@@ -36,5 +29,16 @@ public class HttpService
             Debug.WriteLine(exception.Message);
             return new JsonObject();
         }
+    }
+
+    public bool SendSwitchPowerStateCommand(string url, string topic)
+    {
+        var data = new StringContent(topic, Encoding.UTF8, "application/json");
+
+        using var client = new HttpClient();
+
+        var response = client.PostAsync(url,data).Result;
+        if (response.IsSuccessStatusCode) return true;
+        return false;
     }
 }

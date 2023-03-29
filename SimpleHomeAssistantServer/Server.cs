@@ -40,6 +40,36 @@ public class Server
                 ActualizeDevices();
                 res.AsText("{OperationState: done}", "application/json");
             });
+        Route.Add("/switchPowerState",
+            (req, res, props) =>
+            {
+                bool result;
+                using (StreamReader reader = new StreamReader(req.InputStream))
+                {
+                    result = ToggleDeviceState(reader.ReadToEnd()).Result;
+                }
+                res.AsText("done", "text/html");
+                if (result)
+                {
+                    res.StatusCode = 200;
+                }
+                else
+                {
+                    res.StatusCode = 501;
+                }
+            }, "POST");
+    }
+
+    private async Task<bool> ToggleDeviceState(string topic)
+    {
+        var isTopicKnown = _manager._enableTopics.Contains(topic);
+        if (isTopicKnown)
+        {
+            await PublishMqttMessage("cmnd", topic, "Power", "Toggle");
+            return true;
+        }
+
+        return false;
     }
 
     private async void ActualizeDevices()
@@ -93,11 +123,14 @@ public class Server
     {
         if (jsonObject.ContainsKey("StatusNET"))
         {
-            var mac = jsonObject["StatusNET"]?["Mac"]?.GetValue<string>();
+            var mac = jsonObject["StatusNET"]?["Mac"]?.ToString();
+            var topic = jsonObject["Status"]?["Topic"]?.ToString();
             if (mac != null && !_manager._devicesRegister.Contains(mac))
             {
                 _manager._deviceInfos.Add(jsonObject);
                 _manager._devicesRegister.Add(mac);
+                if (!_manager._enableTopics.Contains(topic))
+                    _manager._enableTopics.Add(topic);
             }
         }
     }

@@ -15,4 +15,14 @@ public partial class DoubleSwitchCard : UserControl, IDeviceCard
     {
         Info = data;
     }
+
+    private void _btnStateSwitch1_Click(object sender, EventArgs e)
+    {
+
+    }
+
+    private void _btnStateSwitch2_Click(object sender, EventArgs e)
+    {
+
+    }
 }

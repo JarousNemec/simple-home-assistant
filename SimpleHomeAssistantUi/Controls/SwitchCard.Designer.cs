@@ -89,6 +89,7 @@ partial class SwitchCard
         _btnStateSwitch.TabIndex = 4;
         _btnStateSwitch.Text = "On";
         _btnStateSwitch.UseVisualStyleBackColor = true;
+        _btnStateSwitch.Click += _btnStateSwitch_Click;
         // 
         // _btnMore
         // 
