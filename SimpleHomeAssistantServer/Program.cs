@@ -3,4 +3,4 @@
 using SimpleHomeAssistantServer;
 
 var server = new Server();
-await server.Run();
+server.Run();

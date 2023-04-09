@@ -49,7 +49,7 @@ public partial class SwitchCard : UserControl, IDeviceCard
         }
     }
 
-    private async void _btnStateSwitch_Click(object sender, EventArgs e)
+    private void _btnStateSwitch_Click(object sender, EventArgs e)
     {
         var http = new HttpService();
         var config = ConfigurationManager.AppSettings;
