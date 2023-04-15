@@ -3,6 +3,7 @@ using System.Configuration;
 using System.Text.Json;
 using System.Timers;
 using SimpleHomeAssistantServer.Models;
+using SimpleHomeAssistantServer.Workers;
 using Timer = System.Timers.Timer;
 
 namespace SimpleHomeAssistantServer;
@@ -17,29 +18,29 @@ public class StatisticsManager
 
     public StatisticsManager(MqttManager mqttManager)
     {
+        _todayDeviceStatistics = new Dictionary<string, List<DevicePowerStateRecord>>();
         _config = ConfigurationManager.AppSettings;
         _mqttManager = mqttManager;
         Load();
 
         _autoSave = new Timer();
         _autoSave.AutoReset = true;
-        _autoSave.Interval = 30000;
+        _autoSave.Interval = 3000000;
         _autoSave.Elapsed += AutoSaveOnElapsed;
-        _autoSave.Start();
+        // _autoSave.Start();
 
         _statisticsLogger = new Timer();
         _statisticsLogger.AutoReset = true;
-        _statisticsLogger.Interval = 10000;
+        _statisticsLogger.Interval = 60000;
         _statisticsLogger.Elapsed += StatisticsLoggerOnElapsed;
         _statisticsLogger.Start();
     }
 
     private void StatisticsLoggerOnElapsed(object? sender, ElapsedEventArgs e)
     {
-        foreach (var device in _mqttManager.DevicesRegister)
-        {
-            //todo> make new thread in mqtt manager that gets status data from all devices and than trigger event with the data back to StatisticsManager
-        }
+        var topics = _mqttManager.DevicesRegister.Select(device => device.Topic).ToArray();
+        var statisticsWorker = new Thread(new MqttDevicesPowerStatesWorker(topics, _todayDeviceStatistics).Run);
+        statisticsWorker.Start();
     }
 
     private void AutoSaveOnElapsed(object? sender, ElapsedEventArgs e)

@@ -7,6 +7,7 @@ using MQTTnet.Client;
 using System.Configuration;
 using SimpleHomeAssistantServer.Enums;
 using SimpleHomeAssistantServer.Models;
+using SimpleHomeAssistantServer.Workers;
 
 namespace SimpleHomeAssistantServer;
 
@@ -15,7 +16,6 @@ public class MqttManager
     private IMqttClient _client;
     private MqttClientOptions _options;
     public List<Device> DevicesRegister;
-    private MqttClientStates _clientState = MqttClientStates.Free;
 
     public MqttManager()
     {
@@ -40,6 +40,7 @@ public class MqttManager
         {
             Infos.Add(device.AllInfo);
         }
+
         return JsonSerializer.Serialize(Infos);
     }
 
@@ -48,26 +49,19 @@ public class MqttManager
         var isTopicKnown = DevicesRegister.Any(x => x.Topic == topic);
         if (isTopicKnown)
         {
-            _clientState = MqttClientStates.IndividualCommunication;
             var res = PublishMqttMessage("cmnd", topic, "Power", "Toggle");
             return res;
         }
 
         return false;
     }
-    private void ActualizeDevices()
-    {
-        DevicesRegister.Clear();
-        DiscoverAvailableDevices();
-    }
-
-
+    
     private void InitMqttClientMethods()
     {
         _client.ConnectedAsync += async e =>
         {
             Console.WriteLine("Connected");
-            var topics = new[] { "$SYS/broker/clients/#", "#" };
+            var topics = new string[]{};
             foreach (var topic in topics)
             {
                 var topicFilter = new MqttTopicFilterBuilder().WithTopic(topic).Build();
@@ -81,80 +75,12 @@ public class MqttManager
             return Task.CompletedTask;
         };
 
-        _client.ApplicationMessageReceivedAsync += e =>
-        {
-            ValidateMqttMessageReceived(e.ApplicationMessage);
-            return Task.CompletedTask;
-        };
+        _client.ApplicationMessageReceivedAsync += e => Task.CompletedTask;
     }
-
-    private void ValidateMqttMessageReceived(MqttApplicationMessage msg)
-    {
-        if (msg.Payload == null)
-            return;
-        string payload = Encoding.UTF8.GetString(msg.Payload);
-        Console.WriteLine($"Topic: {msg.Topic} , Message: {payload}");
-        try
-        {
-            var data = JsonNode.Parse(payload) as JsonObject;
-            if (data != null) ProcessIncomingMessage(msg, data);
-        }
-        catch (Exception exception)
-        {
-            Debug.WriteLine(exception.Message);
-        }
-    }
-
-    private void ProcessIncomingMessage(MqttApplicationMessage msg, JsonObject jsonObject)
-    {
-        switch (_clientState)
-        {
-            case MqttClientStates.Discover:
-                ProcessDiscoverMessage(msg, jsonObject);
-                break;
-            case MqttClientStates.IndividualCommunication:
-                ProcessIndividualCommunicationMessage(msg, jsonObject);
-                break;
-            case MqttClientStates.Free:
-                break;
-            default:
-                break;
-        }
-    }
-
-    private void ProcessDiscoverMessage(MqttApplicationMessage msg, JsonObject jsonObject)
-    {
-        if (IsValidDiscoverMsgResponse(jsonObject))
-        {
-            var mac = jsonObject["StatusNET"]?["Mac"]?.ToString();
-            var topic = jsonObject["Status"]?["Topic"]?.ToString();
-            if (mac != null && DevicesRegister.All(x => x.Mac != mac) && topic != null)
-            {
-                DevicesRegister.Add(new Device(jsonObject));
-            }
-
-            _clientState = MqttClientStates.Free;
-        }
-    }
-
-    private void ProcessIndividualCommunicationMessage(MqttApplicationMessage msg, JsonObject jsonObject)
-    {
-        _clientState = MqttClientStates.Free;
-        ActualizeDevices();
-    }
-
-    private bool IsValidDiscoverMsgResponse(JsonObject jsonObject)
-    {
-        return jsonObject.ContainsKey("Status") && jsonObject.ContainsKey("StatusPRM") &&
-               jsonObject.ContainsKey("StatusFWR") && jsonObject.ContainsKey("StatusLOG") &&
-               jsonObject.ContainsKey("StatusNET");
-    }
-
     public void DiscoverAvailableDevices()
     {
-        _clientState = MqttClientStates.Discover;
-        PublishMqttMessage("cmnd", "tasmotas", "Status0");
-        Console.WriteLine("Discover sent ...");
+        var statisticsWorker = new Thread(new MqttDevicesDiscoveryWorker(DevicesRegister).Run);
+        statisticsWorker.Start();
     }
 
     public bool PublishMqttMessage(string type, string topic, string command, string msg = "")
