@@ -1,5 +1,7 @@
 using System.Globalization;
+using System.Text.Json;
 using System.Text.Json.Nodes;
+using SimpleHomeAssistantServer.Models;
 using SimpleHomeAssistantUi.Services;
 
 namespace SimpleHomeAssistantUi;
@@ -33,10 +35,11 @@ public partial class MainOverview : Form
 
     private void LoadDevices()
     {
-        var devices = _httpService.DownloadJsonObject(GETALLDEVICESURL);
-        if (devices.ToString() == "{}")
+        var data = _httpService.DownloadString(GETALLDEVICESURL);
+        var devices = JsonSerializer.Deserialize<Device[]>(data);
+        if (devices == null)
             return;
-        _deviceCardsPanel.LoadDevices(devices);
+        _deviceCardsPanel.LoadDevices(devices.ToList());
     }
 
     private void _btnRefresh_Click(object sender, EventArgs e)

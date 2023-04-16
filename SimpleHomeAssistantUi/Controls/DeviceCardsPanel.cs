@@ -1,5 +1,6 @@
 ﻿using System.Text.Json.Nodes;
 using System.Windows.Forms;
+using SimpleHomeAssistantServer.Models;
 using SimpleHomeAssistantUi.Interfaces;
 
 namespace SimpleHomeAssistantUi.Controls;
@@ -11,25 +12,22 @@ public partial class DeviceCardsPanel : UserControl
         InitializeComponent();
     }
 
-    public void LoadDevices(JsonNode devices)
+    public void LoadDevices(List<Device> devices)
     {
-        var infos = devices.AsArray();
         _pnlCards.Controls.Clear();
-        for (var i = 0; i < infos.Count; i++)
+        foreach (var device in devices)
         {
-            if (infos[i] != null)
-            {
-                var card = CreateCurrentCard(infos[i]);
-                if (card == null)
-                    return;
-                _pnlCards.Controls.Add(card);
-                Invalidate();
-            }
+            var card = CreateCurrentCard(device);
+            if (card == null)
+                return;
+            _pnlCards.Controls.Add(card);
+            Invalidate();
         }
     }
 
     private const int TOP_MARGIN = 16;
     private const int SIDE_MARGIN = 32;
+
     protected override void OnPaint(PaintEventArgs e)
     {
         base.OnPaint(e);
@@ -43,33 +41,33 @@ public partial class DeviceCardsPanel : UserControl
         }
     }
 
-    private UserControl CreateCurrentCard(JsonNode? device)
+    private UserControl CreateCurrentCard(Device device)
     {
-        switch (device?["Status"]?["Module"]?.ToString())
+        switch (device.Module)
         {
-            case "1":
-            case "8":
-            case "9":
-                {
-                    var card = new SwitchCard();
-                    card.LoadInfo(device);
-                    return card;
-                }
+            case 1:
+            case 8:
+            case 9:
+            {
+                var card = new SwitchCard();
+                card.LoadInfo(device);
+                return card;
+            }
 
-            case "5":
-            case "39":
-                {
-                    var card = new DoubleSwitchCard();
-                    card.LoadInfo(device);
-                    return card;
-                }
+            case 5:
+            case 39:
+            {
+                var card = new DoubleSwitchCard();
+                card.LoadInfo(device);
+                return card;
+            }
 
-            case "999":
-                {
-                    var card = new SensorCard();
-                    card.LoadInfo(device);
-                    return card;
-                }
+            case 999:
+            {
+                var card = new SensorCard();
+                card.LoadInfo(device);
+                return card;
+            }
 
             default:
                 return null;

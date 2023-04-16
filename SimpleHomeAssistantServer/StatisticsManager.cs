@@ -1,5 +1,6 @@
 ﻿using System.Collections.Specialized;
 using System.Configuration;
+using System.Globalization;
 using System.Text.Json;
 using System.Timers;
 using SimpleHomeAssistantServer.Models;
@@ -10,37 +11,63 @@ namespace SimpleHomeAssistantServer;
 
 public class StatisticsManager
 {
-    private MqttManager _mqttManager;
+    private List<Device> _devicesRegister;
     private Dictionary<string, List<DevicePowerStateRecord>> _todayDeviceStatistics = null!;
     private NameValueCollection _config;
     private Timer _autoSave;
     private Timer _statisticsLogger;
 
-    public StatisticsManager(MqttManager mqttManager)
+    public StatisticsManager(List<Device> devicesRegister)
     {
-        _todayDeviceStatistics = new Dictionary<string, List<DevicePowerStateRecord>>();
         _config = ConfigurationManager.AppSettings;
-        _mqttManager = mqttManager;
+        _devicesRegister = devicesRegister;
         Load();
 
         _autoSave = new Timer();
         _autoSave.AutoReset = true;
-        _autoSave.Interval = 3000000;
+        _autoSave.Interval = 60000;
         _autoSave.Elapsed += AutoSaveOnElapsed;
-        // _autoSave.Start();
 
         _statisticsLogger = new Timer();
         _statisticsLogger.AutoReset = true;
-        _statisticsLogger.Interval = 60000;
+        _statisticsLogger.Interval = 20000;
         _statisticsLogger.Elapsed += StatisticsLoggerOnElapsed;
+    }
+
+    public void Run()
+    {
+        _autoSave.Start();
         _statisticsLogger.Start();
     }
 
     private void StatisticsLoggerOnElapsed(object? sender, ElapsedEventArgs e)
     {
-        var topics = _mqttManager.DevicesRegister.Select(device => device.Topic).ToArray();
-        var statisticsWorker = new Thread(new MqttDevicesPowerStatesWorker(topics, _todayDeviceStatistics).Run);
+        DownloadStatistics();
+    }
+
+    public void DownloadStatistics()
+    {
+        var topics = _devicesRegister.Select(device => device.Topic).ToArray();
+        var topicsPaths = new List<string>();
+        foreach (var topic in topics)
+        {
+            topicsPaths.Add($"stat/{topic}/RESULT");
+        }
+        var statisticsWorker = new Thread(new MqttDevicesPowerStatesWorker(topics,topicsPaths.ToArray(), _todayDeviceStatistics).Run);
         statisticsWorker.Start();
+    }
+
+    public Dictionary<string, DevicePowerStateRecord> GetLastDevicePowerStateRecords()
+    {
+        if (_todayDeviceStatistics.Count == 0)
+            return null;
+        var records = new Dictionary<string, DevicePowerStateRecord>();
+        foreach (var todayDeviceStatistic in _todayDeviceStatistics)
+        {
+            records.Add(todayDeviceStatistic.Key, todayDeviceStatistic.Value[todayDeviceStatistic.Value.Count-1]);
+        }
+
+        return records;
     }
 
     private void AutoSaveOnElapsed(object? sender, ElapsedEventArgs e)
@@ -50,7 +77,7 @@ public class StatisticsManager
 
     private void Load()
     {
-        var todayStatisticsFileName = $"{_config.Get("StatisticsPath")}{DateTime.Today}.rec";
+        var todayStatisticsFileName = $"{_config.Get("StatisticsPath")}{new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day).Ticks}.rec";
         if (File.Exists(todayStatisticsFileName))
         {
             var data = File.ReadAllText(todayStatisticsFileName);
@@ -67,7 +94,7 @@ public class StatisticsManager
     public void Save()
     {
         var data = JsonSerializer.Serialize(_todayDeviceStatistics);
-        var todayStatisticsFileName = $"{_config.Get("StatisticsPath")}{DateTime.Today}.rec";
+        var todayStatisticsFileName = $"{_config.Get("StatisticsPath")}{new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day).Ticks}.rec";
         File.WriteAllText(todayStatisticsFileName, data);
     }
 }

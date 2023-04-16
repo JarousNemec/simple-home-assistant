@@ -17,14 +17,16 @@ public class Server
         public Server()
     {
         _mqttManager = new MqttManager();
-        _statisticsManager = new StatisticsManager(_mqttManager);
+        _statisticsManager = new StatisticsManager(_mqttManager.DevicesRegister);
+        _mqttManager.SetStatisticManager(_statisticsManager);
         InitHttpServer();
     }
 
     private void InitHttpServer()
     {
+        //todo: refresh, statistics
         Route.Add("/alldevices",
-            (req, res, props) => { res.AsText(_mqttManager.GetAllDiscoveredDevicesJson(), "application/json"); });
+            (req, res, props) => { res.AsText(_mqttManager.GetAllDiscoveredDevices(), "application/json"); });
         Route.Add("/switchPowerState",
             (req, res, props) =>
             {
@@ -51,6 +53,8 @@ public class Server
         _mqttManager.ConnectToMqttBroker();
         Console.WriteLine("Running ...");
         _mqttManager.DiscoverAvailableDevices();
+        Thread.Sleep(20000);
+        _statisticsManager.Run();
         
         HttpServer.ListenAsync(10002, CancellationToken.None, Route.OnHttpRequestAsync).RunInBackground();
 

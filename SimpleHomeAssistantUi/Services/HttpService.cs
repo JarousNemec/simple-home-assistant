@@ -16,18 +16,17 @@ public class HttpService
         _client = new HttpClient();
     }
 
-    public JsonNode DownloadJsonObject(string url)
+    public string DownloadString(string url)
     {
         try
         {
             var res = _client.GetStringAsync(url).Result;
-            var data = JsonNode.Parse(res);
-            return data ?? new JsonObject();
+            return res;
         }
         catch (Exception exception)
         {
             Debug.WriteLine(exception.Message);
-            return new JsonObject();
+            return String.Empty;
         }
     }
 

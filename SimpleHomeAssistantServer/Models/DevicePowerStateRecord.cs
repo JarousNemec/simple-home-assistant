@@ -3,5 +3,5 @@
 public class DevicePowerStateRecord
 {
     public DateTime Date { get; set; }
-    public int State { get; set; }
+    public bool State { get; set; }
 }

@@ -2,6 +2,7 @@
 using System.Security.Cryptography;
 using System.Text.Json.Nodes;
 using System.Windows.Forms;
+using SimpleHomeAssistantServer.Models;
 using SimpleHomeAssistantUi.Interfaces;
 using SimpleHomeAssistantUi.Services;
 
@@ -14,30 +15,30 @@ public partial class SwitchCard : UserControl, IDeviceCard
         InitializeComponent();
     }
 
-    public JsonNode Info { get; set; }
+    public Device Info { get; set; }
     public bool Power { get; set; }
 
-    public void LoadInfo(JsonNode data)
+    public void LoadInfo(Device data)
     {
         Info = data;
 
-        _lblFriendlyName.Text = data["Status"]?["FriendlyName"]?[0]?.ToString();
-        _lblIpAddress.Text = data["StatusNET"]?["IPAddress"]?.ToString();
+        _lblFriendlyName.Text = Info.FriendlyName;
+        _lblIpAddress.Text = Info.Ip;
 
-        switch (data["Status"]?["Module"]?.ToString())
+        switch (Info.Module)
         {
-            case "1":
-            case "9":
+            case 1:
+            case 9:
                 {
                     _picDeviceIcon.Image = Image.FromFile("./assets/images/smartSwitch.jpg");
                     break;
                 }
-            case "8":
+            case 8:
                 _picDeviceIcon.Image = Image.FromFile("./assets/images/smartSocket.jpg");
                 break;
         }
 
-        if (data["Status"]?["Power"]?.ToString() == "0")
+        if (!Info.Power)
         {
             _btnStateSwitch.Text = "Turn On";
             Power = false;
@@ -53,21 +54,20 @@ public partial class SwitchCard : UserControl, IDeviceCard
     {
         var http = new HttpService();
         var config = ConfigurationManager.AppSettings;
-        var result = http.SendSwitchPowerStateCommand(config.Get("MainEndpoint")+config.Get("SwitchPowerState"),Info["Status"]?["Topic"]?.ToString()!);
+        var result = http.SendSwitchPowerStateCommand(config.Get("MainEndpoint")+config.Get("SwitchPowerState"),Info.Topic);
         if (result)
         {
             if (Power)
             {
                 _btnStateSwitch.Text = "Turn On";
                 Power = false;
-                Info["Status"]["Power"] = "0";
             }
             else
             {
                 _btnStateSwitch.Text = "Turn Off";
                 Power = true;
-                Info["Status"]["Power"] = "1";
             }
+            Info.Power = Power;
         }
     }
 }

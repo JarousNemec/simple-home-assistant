@@ -10,138 +10,41 @@ using Timer = System.Timers.Timer;
 
 namespace SimpleHomeAssistantServer.Workers;
 
-public class MqttDevicesPowerStatesWorker
+public class MqttDevicesPowerStatesWorker : MqttWorker
 {
-    private readonly IMqttClient _client;
-    private readonly MqttClientOptions _options;
     private string[] Topics { get; set; }
-    private readonly Dictionary<string, int> _statuses;
+    private readonly Dictionary<string, bool> _statuses;
     private readonly Dictionary<string, List<DevicePowerStateRecord>> _sharedStorage;
-    private readonly Timer _workersLiveTimer;
 
-    public MqttDevicesPowerStatesWorker(string[] topics, Dictionary<string, List<DevicePowerStateRecord>> sharedStorage,
-        int ttl = 10000)
+    public MqttDevicesPowerStatesWorker(string[] topics,string[] topicsPaths, Dictionary<string, List<DevicePowerStateRecord>> sharedStorage)
+        : base(topicsPaths)
     {
         Topics = topics;
         _sharedStorage = sharedStorage;
-        _statuses = new Dictionary<string, int>();
-        var mqttFactory = new MqttFactory();
-        _client = mqttFactory.CreateMqttClient();
-        var config = ConfigurationManager.AppSettings;
-
-        _options = new MqttClientOptionsBuilder()
-            .WithClientId(Guid.NewGuid().ToString())
-            .WithTcpServer(config.Get("BrokerIp"), int.Parse(config.Get("BrokerPort") ?? "1883"))
-            .WithCredentials(config.Get("Username"), config.Get("Password"))
-            .WithCleanSession()
-            .Build();
-        InitMqttClientMethods();
-
-        _workersLiveTimer = new Timer();
-        _workersLiveTimer.Interval = ttl;
-        _workersLiveTimer.AutoReset = false;
-        _workersLiveTimer.Elapsed += WorkersLiveTimerOnElapsed;
+        _statuses = new Dictionary<string, bool>();
     }
 
-    private void WorkersLiveTimerOnElapsed(object? sender, ElapsedEventArgs e)
+    protected override void SetupRun()
     {
-        Stop();
-    }
-
-    private bool _running = true;
-
-    public void Run()
-    {
-        ConnectToMqttBroker();
-        _workersLiveTimer.Start();
         foreach (var topic in Topics)
         {
-            PublishMqttMessage("cmnd", topic, "Status1");
-        }
-        while (_running)
-        {
-            Thread.Sleep(100);
+            PublishMqttMessage("cmnd", topic, "Power");
         }
     }
 
-    private void Stop()
+    protected override void ProcessMessage(MqttApplicationMessage msg, JsonObject jsonObject)
     {
-        DisconnectFromMqttBroker();
-        _client.Dispose();
-        _workersLiveTimer.Stop();
-        _workersLiveTimer.Dispose();
-        _running = false;
+        if (!jsonObject.ContainsKey("POWER")) return;
+        var topic = msg.Topic.Split('/')[1];
+        if (_statuses.ContainsKey(topic)) return;
+        var value = jsonObject["POWER"].GetValue<string>() == "ON";
+        _statuses.Add(topic,value);
     }
 
-    private void InitMqttClientMethods()
+    protected override void Stop()
     {
-        _client.ConnectedAsync += async e =>
-        {
-            Console.WriteLine("Connected");
-            foreach (var topic in Topics)
-            {
-                var topicFilter = new MqttTopicFilterBuilder().WithTopic($"stat/{topic}/STATUS").Build();
-                await _client.SubscribeAsync(topicFilter);
-            }
-        };
-
-        _client.DisconnectedAsync += e =>
-        {
-            Console.WriteLine("Disconnected");
-            return Task.CompletedTask;
-        };
-
-        _client.ApplicationMessageReceivedAsync += e =>
-        {
-            var data = ParseMessageToJsonObject(e.ApplicationMessage);
-            if (data != null)
-                ProcessMessage(data, e.ApplicationMessage);
-            return Task.CompletedTask;
-        };
-    }
-    
-    public bool PublishMqttMessage(string type, string topic, string command, string msg = "")
-    {
-        var message = new MqttApplicationMessageBuilder()
-            .WithTopic($"{type}/{topic}/{command}")
-            .WithPayload(msg)
-            .Build();
-        if (_client.IsConnected)
-        {
-            var mqttClientPublishResult = _client.PublishAsync(message).Result;
-            return mqttClientPublishResult.IsSuccess;
-        }
-
-        return false;
-    }
-
-    private void ProcessMessage(JsonObject data, MqttApplicationMessage msg)
-    {
-        if (_statuses.ContainsKey(msg.Topic)) return;
-        _statuses.Add(msg.Topic,
-            int.Parse(data["Status"]["Power"].ToString()));
-        if (_statuses.Count < Topics.Length) return;
         InsertDataToStorage();
-        Stop();
-    }
-
-    private JsonObject? ParseMessageToJsonObject(MqttApplicationMessage msg)
-    {
-        if (msg.Payload == null)
-            return null;
-        var payload = Encoding.UTF8.GetString(msg.Payload);
-        Console.WriteLine($"Topic: {msg.Topic} , Message: {payload}");
-        try
-        {
-            var data = JsonNode.Parse(payload) as JsonObject;
-            return data;
-        }
-        catch (Exception exception)
-        {
-            Debug.WriteLine(exception.Message);
-        }
-
-        return null;
+        base.Stop();
     }
 
     private void InsertDataToStorage()
@@ -160,18 +63,5 @@ public class MqttDevicesPowerStatesWorker
                     { Date = DateTime.Now, State = device.Value });
             }
         }
-    }
-
-    private void ConnectToMqttBroker()
-    {
-        retry:
-        var _ = _client.ConnectAsync(_options).Result;
-        if (!_client.IsConnected)
-            goto retry;
-    }
-
-    private void DisconnectFromMqttBroker()
-    {
-        _client.DisconnectAsync();
     }
 }

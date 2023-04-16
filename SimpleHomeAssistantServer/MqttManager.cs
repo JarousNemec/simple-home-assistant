@@ -5,9 +5,11 @@ using System.Text.Json.Nodes;
 using MQTTnet;
 using MQTTnet.Client;
 using System.Configuration;
+using System.Timers;
 using SimpleHomeAssistantServer.Enums;
 using SimpleHomeAssistantServer.Models;
 using SimpleHomeAssistantServer.Workers;
+using Timer = System.Timers.Timer;
 
 namespace SimpleHomeAssistantServer;
 
@@ -16,6 +18,8 @@ public class MqttManager
     private IMqttClient _client;
     private MqttClientOptions _options;
     public List<Device> DevicesRegister;
+    private Timer _discoveryTimer;
+    private StatisticsManager _statisticsManager;
 
     public MqttManager()
     {
@@ -31,17 +35,42 @@ public class MqttManager
             .WithCleanSession()
             .Build();
         InitMqttClientMethods();
+
+        _discoveryTimer = new Timer();
+        _discoveryTimer.Interval = 60000;
+        _discoveryTimer.AutoReset = false;
+        _discoveryTimer.Elapsed += DiscoveryTimerElapsed;
+        _discoveryTimer.Start();
     }
 
-    public string GetAllDiscoveredDevicesJson()
+    private void DiscoveryTimerElapsed(object? sender, ElapsedEventArgs e)
     {
-        var Infos = new List<JsonObject>();
-        foreach (var device in DevicesRegister)
+        DiscoverAvailableDevices();
+    }
+
+    public void SetStatisticManager(StatisticsManager manager)
+    {
+        _statisticsManager = manager;
+    }
+
+    public void DiscoverAvailableDevices()
+    {
+        var statisticsWorker = new Thread(new MqttDevicesDiscoveryWorker(DevicesRegister).Run);
+        statisticsWorker.Start();
+    }
+
+    public string GetAllDiscoveredDevices()
+    {
+        var records = _statisticsManager.GetLastDevicePowerStateRecords();
+        if (records != null)
         {
-            Infos.Add(device.AllInfo);
+            foreach (var device in DevicesRegister)
+            {
+                device.Power = records[device.Topic].State;
+            }
         }
 
-        return JsonSerializer.Serialize(Infos);
+        return JsonSerializer.Serialize(DevicesRegister.ToArray());
     }
 
     public bool ToggleDeviceState(string topic)
@@ -55,13 +84,13 @@ public class MqttManager
 
         return false;
     }
-    
+
     private void InitMqttClientMethods()
     {
         _client.ConnectedAsync += async e =>
         {
             Console.WriteLine("Connected");
-            var topics = new string[]{};
+            var topics = new string[] { };
             foreach (var topic in topics)
             {
                 var topicFilter = new MqttTopicFilterBuilder().WithTopic(topic).Build();
@@ -76,11 +105,6 @@ public class MqttManager
         };
 
         _client.ApplicationMessageReceivedAsync += e => Task.CompletedTask;
-    }
-    public void DiscoverAvailableDevices()
-    {
-        var statisticsWorker = new Thread(new MqttDevicesDiscoveryWorker(DevicesRegister).Run);
-        statisticsWorker.Start();
     }
 
     public bool PublishMqttMessage(string type, string topic, string command, string msg = "")
@@ -98,10 +122,10 @@ public class MqttManager
         return false;
     }
 
-    public void ConnectToMqttBroker()
+    public async void ConnectToMqttBroker()
     {
         retry:
-        var _ = _client.ConnectAsync(_options).Result;
+        var _ = await _client.ConnectAsync(_options);
         if (!_client.IsConnected)
             goto retry;
     }
