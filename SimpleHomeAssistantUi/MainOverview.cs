@@ -1,6 +1,4 @@
-using System.Globalization;
-using System.Text.Json;
-using System.Text.Json.Nodes;
+using System.Configuration;
 using SimpleHomeAssistantServer.Models;
 using SimpleHomeAssistantUi.Services;
 
@@ -9,7 +7,6 @@ namespace SimpleHomeAssistantUi;
 public partial class MainOverview : Form
 {
     private HttpService _httpService;
-    private const string GETALLDEVICESURL = "http://localhost:10002/alldevices";
     public MainOverview()
     {
         InitializeComponent();
@@ -35,13 +32,10 @@ public partial class MainOverview : Form
 
     private void LoadDevices()
     {
-        var data = _httpService.DownloadString(GETALLDEVICESURL);
-        var devices = JsonSerializer.Deserialize<Device[]>(data);
-        if (devices == null)
-            return;
-        _deviceCardsPanel.LoadDevices(devices.ToList());
+        var config = ConfigurationManager.AppSettings;
+        var devices = _httpService.DownloadJsonObject<Device[]>(config.Get("MainEndpoint")+config.Get("AllDevices"));
+        if (devices != null) _deviceCardsPanel.LoadDevices(devices.ToList());
     }
-
     private void _btnRefresh_Click(object sender, EventArgs e)
     {
         LoadDevices();

@@ -31,13 +31,24 @@ public partial class DeviceCardsPanel : UserControl
     protected override void OnPaint(PaintEventArgs e)
     {
         base.OnPaint(e);
-        for (int i = 0; i < _pnlCards.Controls.Count; i++)
+        if(_pnlCards.Controls.Count == 0)return;
+        var isEnoughSpace = ((_pnlCards.Controls.Count + 1) * SIDE_MARGIN + _pnlCards.Controls.Count * _pnlCards.Controls[0].Width) < Width;
+        for (var i = 0; i < _pnlCards.Controls.Count; i++)
         {
             var control = _pnlCards.Controls[i];
-            int lineCapacity = Width / control.Width;
-            int margin = (Width - lineCapacity * control.Width) / (lineCapacity + 1);
-            control.Location = new Point(margin + (control.Width + margin) * (i % lineCapacity),
-                TOP_MARGIN + (+(control.Height + TOP_MARGIN) * (i / lineCapacity)));
+            var lineCapacity = Width / control.Width;
+            if (!isEnoughSpace)
+            {
+                var margin = (Width - lineCapacity * control.Width) / (lineCapacity + 1);
+                control.Location = new Point(margin + (control.Width + margin) * (i % lineCapacity),
+                    TOP_MARGIN + (control.Height + TOP_MARGIN) * (i / lineCapacity));
+            }
+            else
+            {
+                control.Location = new Point(SIDE_MARGIN + (control.Width + SIDE_MARGIN) * i,
+                    TOP_MARGIN + (control.Height + TOP_MARGIN) * (i / lineCapacity));
+            }
+            
         }
     }
 

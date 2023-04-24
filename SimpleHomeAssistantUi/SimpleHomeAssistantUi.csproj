@@ -27,6 +27,15 @@
       <Compile Update="Controls\SensorCard.cs">
         <SubType>UserControl</SubType>
       </Compile>
+      <Compile Update="Forms\StatisticsExplorer.cs">
+        <SubType>Form</SubType>
+      </Compile>
+      <Compile Update="Controls\ChoseDeviceStatisticsControl.cs">
+        <SubType>UserControl</SubType>
+      </Compile>
+      <Compile Update="Controls\DataChart.cs">
+        <SubType>UserControl</SubType>
+      </Compile>
     </ItemGroup>
 
     <ItemGroup>

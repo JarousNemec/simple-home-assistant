@@ -53,20 +53,29 @@ public class StatisticsManager
         {
             topicsPaths.Add($"stat/{topic}/RESULT");
         }
-        var statisticsWorker = new Thread(new MqttDevicesPowerStatesWorker(topics,topicsPaths.ToArray(), _todayDeviceStatistics).Run);
+
+        var statisticsWorker =
+            new Thread(new MqttDevicesPowerStatesWorker(topics, topicsPaths.ToArray(), _todayDeviceStatistics).Run);
         statisticsWorker.Start();
     }
 
-    public Dictionary<string, DevicePowerStateRecord> GetLastDevicePowerStateRecords()
+    public Dictionary<string, List<DevicePowerStateRecord>> GetTodayRecords()
     {
         if (_todayDeviceStatistics.Count == 0)
             return null;
+        return _todayDeviceStatistics;
+    }
+    
+    public Dictionary<string, DevicePowerStateRecord> GetTodayLastRecords()
+    {
+        if (_todayDeviceStatistics.Count == 0)
+            return null;
+        
         var records = new Dictionary<string, DevicePowerStateRecord>();
         foreach (var todayDeviceStatistic in _todayDeviceStatistics)
         {
             records.Add(todayDeviceStatistic.Key, todayDeviceStatistic.Value[todayDeviceStatistic.Value.Count-1]);
         }
-
         return records;
     }
 
@@ -77,7 +86,8 @@ public class StatisticsManager
 
     private void Load()
     {
-        var todayStatisticsFileName = $"{_config.Get("StatisticsPath")}{new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day).Ticks}.rec";
+        var todayStatisticsFileName =
+            $"{_config.Get("StatisticsPath")}{new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day).Ticks}.rec";
         if (File.Exists(todayStatisticsFileName))
         {
             var data = File.ReadAllText(todayStatisticsFileName);
@@ -94,7 +104,35 @@ public class StatisticsManager
     public void Save()
     {
         var data = JsonSerializer.Serialize(_todayDeviceStatistics);
-        var todayStatisticsFileName = $"{_config.Get("StatisticsPath")}{new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day).Ticks}.rec";
+        var todayStatisticsFileName =
+            $"{_config.Get("StatisticsPath")}{new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day).Ticks}.rec";
         File.WriteAllText(todayStatisticsFileName, data);
+    }
+
+    public string GetSpecificTodayStatistic(string topic)
+    {
+        return _todayDeviceStatistics.ContainsKey(topic) ? JsonSerializer.Serialize(_todayDeviceStatistics[topic][^1]) : string.Empty;
+    }
+
+    public string GetSpecificStatistic(string topic)
+    {
+        List<DevicePowerStateRecord> records = new List<DevicePowerStateRecord>();
+        var recordFiles = Directory.GetFiles(_config.Get("StatisticsPath"));
+        for (int i = 0; i < recordFiles.Length; i++)
+        {
+            var data = File.ReadAllText(recordFiles[i]);
+            var DeviceStatistics = JsonSerializer.Deserialize<Dictionary<string, List<DevicePowerStateRecord>>>(data) ??
+                               new Dictionary<string, List<DevicePowerStateRecord>>();
+            if (DeviceStatistics.ContainsKey(topic))
+            {
+                for (int j = 0; j < DeviceStatistics[topic].Count; j++)
+                {
+                    records.Add(DeviceStatistics[topic][j]);
+                }
+            }
+            
+        }
+
+        return JsonSerializer.Serialize(records);
     }
 }

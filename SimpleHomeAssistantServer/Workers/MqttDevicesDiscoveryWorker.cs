@@ -15,9 +15,11 @@ public class MqttDevicesDiscoveryWorker : MqttWorker
     private readonly List<Device> _devicesStorage;
     private List<string> _unknownTopics;
     private List<string> _knownTopics;
-
-    public MqttDevicesDiscoveryWorker(List<Device> devicesStorage) : base(new[]{"#"}, ttl: 15000)
+    private DiscoveryStatus _discovering;
+    public MqttDevicesDiscoveryWorker(List<Device> devicesStorage, DiscoveryStatus discovering) : base(new[]{"#"}, ttl: 15000)
     {
+        _discovering = discovering;
+        _discovering.State = true;
         _unknownTopics = new List<string>();
         _knownTopics = new List<string>();
         _devicesStorage = devicesStorage;
@@ -56,6 +58,7 @@ public class MqttDevicesDiscoveryWorker : MqttWorker
         }
         _knownTopics.Clear();
         _unknownTopics.Clear();
+        _discovering.State = false;
         base.Stop();
     }
 

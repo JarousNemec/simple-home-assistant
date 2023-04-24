@@ -1,9 +1,4 @@
-﻿using System.Diagnostics;
-using System.Net.Mime;
-using System.Text;
-using System.Text.Json.Nodes;
-using MQTTnet;
-using MQTTnet.Client;
+﻿using System.Text.Json;
 using MQTTnet.Internal;
 using SimpleHttp;
 
@@ -14,7 +9,7 @@ public class Server
     private MqttManager _mqttManager;
     private StatisticsManager _statisticsManager;
 
-        public Server()
+    public Server()
     {
         _mqttManager = new MqttManager();
         _statisticsManager = new StatisticsManager(_mqttManager.DevicesRegister);
@@ -24,9 +19,14 @@ public class Server
 
     private void InitHttpServer()
     {
-        //todo: refresh, statistics
-        Route.Add("/alldevices",
+        Route.Add("/allDevices",
             (req, res, props) => { res.AsText(_mqttManager.GetAllDiscoveredDevices(), "application/json"); });
+        Route.Add("/refresh",
+            (req, res, props) =>
+            {
+                _mqttManager.DiscoverAvailableDevices();
+                res.AsText("discovering", "application/json");
+            }, "POST");
         Route.Add("/switchPowerState",
             (req, res, props) =>
             {
@@ -46,6 +46,34 @@ public class Server
                     res.StatusCode = 501;
                 }
             }, "POST");
+        Route.Add("/specificTodayStatistic",
+            (req, res, props) =>
+            {
+                string result = string.Empty;
+                using (StreamReader reader = new StreamReader(req.InputStream))
+                {
+                    result = _statisticsManager.GetSpecificTodayStatistic(reader.ReadToEnd());
+                }
+
+                res.AsText(result, "application/json");
+            }, "POST");
+        Route.Add("/statisticToday",
+            (req, res, props) =>
+            {
+                res.AsText(JsonSerializer.Serialize(_statisticsManager.GetTodayRecords()),
+                    "application/json");
+            });
+        Route.Add("/specificStatistic",
+            (req, res, props) =>
+            {
+                string result = string.Empty;
+                using (StreamReader reader = new StreamReader(req.InputStream))
+                {
+                    result = _statisticsManager.GetSpecificStatistic(reader.ReadToEnd());
+                }
+
+                res.AsText(result, "application/json");
+            }, "POST");
     }
 
     public void Run()
@@ -55,7 +83,7 @@ public class Server
         _mqttManager.DiscoverAvailableDevices();
         Thread.Sleep(20000);
         _statisticsManager.Run();
-        
+
         HttpServer.ListenAsync(10002, CancellationToken.None, Route.OnHttpRequestAsync).RunInBackground();
 
         while (true)

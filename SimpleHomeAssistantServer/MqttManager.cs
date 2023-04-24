@@ -20,9 +20,11 @@ public class MqttManager
     public List<Device> DevicesRegister;
     private Timer _discoveryTimer;
     private StatisticsManager _statisticsManager;
+    private DiscoveryStatus _discoveryStatus;
 
     public MqttManager()
     {
+        _discoveryStatus = new DiscoveryStatus();
         DevicesRegister = new List<Device>();
         var mqttFactory = new MqttFactory();
         _client = mqttFactory.CreateMqttClient();
@@ -55,13 +57,14 @@ public class MqttManager
 
     public void DiscoverAvailableDevices()
     {
-        var statisticsWorker = new Thread(new MqttDevicesDiscoveryWorker(DevicesRegister).Run);
+        if (_discoveryStatus.State) return;
+        var statisticsWorker = new Thread(new MqttDevicesDiscoveryWorker(DevicesRegister, _discoveryStatus).Run);
         statisticsWorker.Start();
     }
 
     public string GetAllDiscoveredDevices()
     {
-        var records = _statisticsManager.GetLastDevicePowerStateRecords();
+        var records = _statisticsManager.GetTodayLastRecords();
         if (records != null)
         {
             foreach (var device in DevicesRegister)

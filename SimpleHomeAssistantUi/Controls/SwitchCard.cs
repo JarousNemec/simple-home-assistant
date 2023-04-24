@@ -40,12 +40,12 @@ public partial class SwitchCard : UserControl, IDeviceCard
 
         if (!Info.Power)
         {
-            _btnStateSwitch.Text = "Turn On";
+            _btnStateSwitch.Text = "Zapnout";
             Power = false;
         }
         else
         {
-            _btnStateSwitch.Text = "Turn Off";
+            _btnStateSwitch.Text = "Vypnout";
             Power = true;
         }
     }
@@ -54,17 +54,17 @@ public partial class SwitchCard : UserControl, IDeviceCard
     {
         var http = new HttpService();
         var config = ConfigurationManager.AppSettings;
-        var result = http.SendSwitchPowerStateCommand(config.Get("MainEndpoint")+config.Get("SwitchPowerState"),Info.Topic);
+        var result = http.SendStringMessage(config.Get("MainEndpoint")+config.Get("SwitchPowerState"),Info.Topic);
         if (result)
         {
             if (Power)
             {
-                _btnStateSwitch.Text = "Turn On";
+                _btnStateSwitch.Text = "Zapnout";
                 Power = false;
             }
             else
             {
-                _btnStateSwitch.Text = "Turn Off";
+                _btnStateSwitch.Text = "Vypnout";
                 Power = true;
             }
             Info.Power = Power;
