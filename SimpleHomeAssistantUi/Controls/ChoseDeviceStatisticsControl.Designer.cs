@@ -31,9 +31,29 @@ partial class ChoseDeviceStatisticsControl
     /// </summary>
     private void InitializeComponent()
     {
-        components = new System.ComponentModel.Container();
-        this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+        _pnlDevices = new Panel();
+        SuspendLayout();
+        // 
+        // _pnlDevices
+        // 
+        _pnlDevices.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+        _pnlDevices.BorderStyle = BorderStyle.FixedSingle;
+        _pnlDevices.Location = new Point(0, 0);
+        _pnlDevices.Name = "_pnlDevices";
+        _pnlDevices.Size = new Size(238, 406);
+        _pnlDevices.TabIndex = 0;
+        // 
+        // ChoseDeviceStatisticsControl
+        // 
+        AutoScaleDimensions = new SizeF(7F, 15F);
+        AutoScaleMode = AutoScaleMode.Font;
+        Controls.Add(_pnlDevices);
+        Name = "ChoseDeviceStatisticsControl";
+        Size = new Size(238, 406);
+        ResumeLayout(false);
     }
 
     #endregion
+
+    private Panel _pnlDevices;
 }

@@ -37,6 +37,7 @@ partial class MainOverview
         _tbLog = new TextBox();
         _deviceCardsPanel = new Controls.DeviceCardsPanel();
         _btnRefresh = new Button();
+        _btnStatics = new Button();
         SuspendLayout();
         // 
         // _updater
@@ -58,7 +59,7 @@ partial class MainOverview
         // _btnSettings
         // 
         _btnSettings.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-        _btnSettings.Location = new Point(320, 12);
+        _btnSettings.Location = new Point(682, 12);
         _btnSettings.Name = "_btnSettings";
         _btnSettings.Size = new Size(108, 25);
         _btnSettings.TabIndex = 1;
@@ -68,7 +69,7 @@ partial class MainOverview
         // _btnLogin
         // 
         _btnLogin.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-        _btnLogin.Location = new Point(434, 12);
+        _btnLogin.Location = new Point(796, 12);
         _btnLogin.Name = "_btnLogin";
         _btnLogin.Size = new Size(108, 25);
         _btnLogin.TabIndex = 2;
@@ -83,7 +84,7 @@ partial class MainOverview
         _tbLog.Multiline = true;
         _tbLog.Name = "_tbLog";
         _tbLog.ReadOnly = true;
-        _tbLog.Size = new Size(530, 143);
+        _tbLog.Size = new Size(892, 143);
         _tbLog.TabIndex = 4;
         _tbLog.WordWrap = false;
         // 
@@ -92,13 +93,13 @@ partial class MainOverview
         _deviceCardsPanel.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
         _deviceCardsPanel.Location = new Point(12, 43);
         _deviceCardsPanel.Name = "_deviceCardsPanel";
-        _deviceCardsPanel.Size = new Size(530, 527);
+        _deviceCardsPanel.Size = new Size(892, 527);
         _deviceCardsPanel.TabIndex = 5;
         // 
         // _btnRefresh
         // 
         _btnRefresh.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-        _btnRefresh.Location = new Point(206, 12);
+        _btnRefresh.Location = new Point(568, 12);
         _btnRefresh.Name = "_btnRefresh";
         _btnRefresh.Size = new Size(108, 25);
         _btnRefresh.TabIndex = 6;
@@ -106,11 +107,23 @@ partial class MainOverview
         _btnRefresh.UseVisualStyleBackColor = true;
         _btnRefresh.Click += _btnRefresh_Click;
         // 
+        // _btnStatics
+        // 
+        _btnStatics.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+        _btnStatics.Location = new Point(454, 12);
+        _btnStatics.Name = "_btnStatics";
+        _btnStatics.Size = new Size(108, 25);
+        _btnStatics.TabIndex = 7;
+        _btnStatics.Text = "Statistics";
+        _btnStatics.UseVisualStyleBackColor = true;
+        _btnStatics.Click += _btnStatics_Click;
+        // 
         // MainOverview
         // 
         AutoScaleDimensions = new SizeF(7F, 15F);
         AutoScaleMode = AutoScaleMode.Font;
-        ClientSize = new Size(554, 731);
+        ClientSize = new Size(916, 731);
+        Controls.Add(_btnStatics);
         Controls.Add(_btnRefresh);
         Controls.Add(_deviceCardsPanel);
         Controls.Add(_tbLog);
@@ -134,4 +147,5 @@ partial class MainOverview
     private TextBox _tbLog;
     private Controls.DeviceCardsPanel _deviceCardsPanel;
     private Button _btnRefresh;
+    private Button _btnStatics;
 }

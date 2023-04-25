@@ -31,9 +31,29 @@ partial class DataChart
     /// </summary>
     private void InitializeComponent()
     {
-        components = new System.ComponentModel.Container();
-        this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+        _pnlChart = new Panel();
+        SuspendLayout();
+        // 
+        // _pnlChart
+        // 
+        _pnlChart.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+        _pnlChart.BorderStyle = BorderStyle.FixedSingle;
+        _pnlChart.Location = new Point(0, 0);
+        _pnlChart.Name = "_pnlChart";
+        _pnlChart.Size = new Size(325, 266);
+        _pnlChart.TabIndex = 0;
+        // 
+        // DataChart
+        // 
+        AutoScaleDimensions = new SizeF(7F, 15F);
+        AutoScaleMode = AutoScaleMode.Font;
+        Controls.Add(_pnlChart);
+        Name = "DataChart";
+        Size = new Size(325, 266);
+        ResumeLayout(false);
     }
 
     #endregion
+
+    private Panel _pnlChart;
 }

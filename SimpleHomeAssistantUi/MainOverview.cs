@@ -1,5 +1,6 @@
 using System.Configuration;
 using SimpleHomeAssistantServer.Models;
+using SimpleHomeAssistantUi.Forms;
 using SimpleHomeAssistantUi.Services;
 
 namespace SimpleHomeAssistantUi;
@@ -7,9 +8,14 @@ namespace SimpleHomeAssistantUi;
 public partial class MainOverview : Form
 {
     private HttpService _httpService;
+    private StatisticsExplorer _statisticsExplorer;
+    private List<Device> _loadedDevices;
+
     public MainOverview()
     {
+        _loadedDevices = new List<Device>();
         InitializeComponent();
+        _statisticsExplorer = new StatisticsExplorer();
         _httpService = new HttpService();
     }
 
@@ -22,7 +28,8 @@ public partial class MainOverview : Form
     private void _updater_Tick(object sender, EventArgs e)
     {
         var time = DateTime.Now;
-        _lblDateTime.Text = $@"{time.Hour}:{CorrectFormat(time.Minute)}:{CorrectFormat(time.Second)}  {time.Day}.{CorrectFormat(time.Month)}.{time.Year}";
+        _lblDateTime.Text =
+            $@"{time.Hour}:{CorrectFormat(time.Minute)}:{CorrectFormat(time.Second)}  {time.Day}.{CorrectFormat(time.Month)}.{time.Year}";
     }
 
     private static string CorrectFormat(int number)
@@ -33,11 +40,21 @@ public partial class MainOverview : Form
     private void LoadDevices()
     {
         var config = ConfigurationManager.AppSettings;
-        var devices = _httpService.DownloadJsonObject<Device[]>(config.Get("MainEndpoint")+config.Get("AllDevices"));
-        if (devices != null) _deviceCardsPanel.LoadDevices(devices.ToList());
+        var devices = _httpService.DownloadJsonObject<Device[]>(config.Get("MainEndpoint") + config.Get("AllDevices"));
+        if (devices == null) return;
+        _loadedDevices = devices.ToList();
+        _deviceCardsPanel.LoadDevices(_loadedDevices);
     }
+
     private void _btnRefresh_Click(object sender, EventArgs e)
     {
         LoadDevices();
+    }
+
+    private void _btnStatics_Click(object sender, EventArgs e)
+    {
+        _statisticsExplorer.SetDevices(_loadedDevices);
+        if (!_statisticsExplorer.Visible)
+            _statisticsExplorer.Show();
     }
 }

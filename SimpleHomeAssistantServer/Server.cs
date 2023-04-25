@@ -19,6 +19,10 @@ public class Server
 
     private void InitHttpServer()
     {
+        //todo: reset statistics for specific device
+        //todo: add device profiles
+        //todo: get devices profiles
+        //todo: set devices profiles
         Route.Add("/allDevices",
             (req, res, props) => { res.AsText(_mqttManager.GetAllDiscoveredDevices(), "application/json"); });
         Route.Add("/refresh",
