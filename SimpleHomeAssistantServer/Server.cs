@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Configuration;
+using System.Text.Json;
 using MQTTnet.Internal;
 using SimpleHttp;
 
@@ -8,21 +9,41 @@ public class Server
 {
     private MqttManager _mqttManager;
     private StatisticsManager _statisticsManager;
+    private DeviceProfilesManager _deviceProfilesManager;
 
     public Server()
     {
         _mqttManager = new MqttManager();
         _statisticsManager = new StatisticsManager(_mqttManager.DevicesRegister);
+        _deviceProfilesManager = new DeviceProfilesManager();
         _mqttManager.SetStatisticManager(_statisticsManager);
+        CheckSystemRequiredDirectories();
         InitHttpServer();
+    }
+
+    private void CheckSystemRequiredDirectories()
+    {
+        var required = ConfigurationManager.AppSettings.Get("RequiredDirectories")?.Split(';');
+        var availableDirs = Directory.GetDirectories("./");
+        if (required != null)
+            foreach (var dir in required)
+            {
+                if (availableDirs.All(x => x != dir))
+                {
+                    Directory.CreateDirectory($"./{dir}");
+                }
+            }
     }
 
     private void InitHttpServer()
     {
-        //todo: reset statistics for specific device
-        //todo: add device profiles
-        //todo: get devices profiles
-        //todo: set devices profiles
+        //todo: edit friendly name "cmnd/objimka/FriendlyName1" - "zarovkavPokoji"
+        //todo: edit device name "cmnd/objimka/DeviceName" - "zarovka_v_Pokoji"
+        //todo: edit device topic "cmnd/objimka2/Topic" - "objimka"
+        //todo: de/activate timers "cmnd/objimka/Timer1" - "{"Enable": 1,"Time": "23:08","Window": 0,"Days": "-MTWTF-","Repeat": 0,"Output": 1,"Action": 2}" https://tasmota.github.io/docs/Timers/#commands
+        //todo: synchronizing time in some interval "cmnd/objimka/Time" - "1682975876"(UTC)
+        //todo: change topic identification to device MAC in device profiles
+        //todo: check for compatibility with common tasmota devices(statistics ...)
         Route.Add("/allDevices",
             (req, res, props) => { res.AsText(_mqttManager.GetAllDiscoveredDevices(), "application/json"); });
         Route.Add("/refresh",
@@ -31,6 +52,7 @@ public class Server
                 _mqttManager.DiscoverAvailableDevices();
                 res.AsText("discovering", "application/json");
             }, "POST");
+        
         Route.Add("/switchPowerState",
             (req, res, props) =>
             {
@@ -40,7 +62,7 @@ public class Server
                     result = _mqttManager.ToggleDeviceState(reader.ReadToEnd());
                 }
 
-                res.AsText("done", "text/html");
+                res.AsText("done");
                 if (result)
                 {
                     res.StatusCode = 200;
@@ -50,6 +72,34 @@ public class Server
                     res.StatusCode = 501;
                 }
             }, "POST");
+        
+        Route.Add("/deviceProfiles",
+            (req, res, props) =>
+            {
+                _deviceProfilesManager.CheckForNewProfiles(_mqttManager.DevicesRegister);
+                res.AsText(JsonSerializer.Serialize(_deviceProfilesManager.GetProfiles()),
+                    "application/json");
+            });
+        Route.Add("/editProfile",
+            (req, res, props) =>
+            {
+                var result = true;
+                using (var reader = new StreamReader(req.InputStream))
+                {
+                    result = _deviceProfilesManager.EditProfile(reader.ReadToEnd());
+                }
+
+                res.AsText("done");
+                if (result)
+                {
+                    res.StatusCode = 200;
+                }
+                else
+                {
+                    res.StatusCode = 501;
+                }
+            }, "POST");
+        
         Route.Add("/specificTodayStatistic",
             (req, res, props) =>
             {
