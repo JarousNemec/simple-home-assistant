@@ -50,10 +50,10 @@ public class DeviceProfilesManager
         var change = false;
         foreach (var device in actualDevices)
         {
-            if (_profiles.All(x => x.Topic != device.Topic))
+            if (_profiles.All(x => x.Mac != device.Mac))
             {
                 change = true;
-                _profiles.Add(new DeviceProfile(device.Topic));
+                _profiles.Add(new DeviceProfile(device.Mac));
             }
         }
 
@@ -66,7 +66,7 @@ public class DeviceProfilesManager
         if (profile == null) return false;
         for (var i = 0; i < _profiles.Count; i++)
         {
-            if (_profiles[i].Topic != profile.Topic) continue;
+            if (_profiles[i].Mac != profile.Mac) continue;
             _profiles[i] = profile;
             Save();
             break;

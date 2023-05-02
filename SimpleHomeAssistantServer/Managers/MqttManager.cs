@@ -78,14 +78,39 @@ public class MqttManager
 
     public bool ToggleDeviceState(string topic)
     {
-        var isTopicKnown = DevicesRegister.Any(x => x.Topic == topic);
-        if (isTopicKnown)
-        {
-            var res = PublishMqttMessage("cmnd", topic, "Power", "Toggle");
-            return res;
-        }
+        return PublishMqttMessage("cmnd", topic, "Power", "Toggle");
+    }
 
-        return false;
+    public bool SetTimer(string json)
+    {
+        var settings = JsonSerializer.Deserialize<TimerSettings>(json);
+        return settings != null && PublishMqttMessage("cmnd", settings.Topic, settings.TimerName, json);
+    }
+    
+    public bool SetDeviceTopic(string json)
+    {
+        var data = JsonSerializer.Deserialize<BasicMessage>(json);
+        if (data == null) return false;
+        
+        var isTopicKnown = DevicesRegister.Any(x => x.Topic == data.Payload);
+        return !isTopicKnown && SendBasicMessage(json, "Topic");
+    }
+
+    public bool SetDeviceName(string json)
+    {
+        return SendBasicMessage(json, "DeviceName");
+    }
+
+    public bool SetFriendlyName(string json)
+    {
+        return SendBasicMessage(json, "FriendlyName1");
+    }
+
+    private bool SendBasicMessage(string json, string command)
+    {
+        var data = JsonSerializer.Deserialize<BasicMessage>(json);
+        if (data == null) return false;
+        return PublishMqttMessage("cmnd", data.Topic, command, data.Payload);
     }
 
     private void InitMqttClientMethods()
@@ -112,6 +137,9 @@ public class MqttManager
 
     public bool PublishMqttMessage(string type, string topic, string command, string msg = "")
     {
+        var isTopicKnown = DevicesRegister.Any(x => x.Topic == topic);
+        if (!isTopicKnown)
+            return false;
         var message = new MqttApplicationMessageBuilder()
             .WithTopic($"{type}/{topic}/{command}")
             .WithPayload(msg)

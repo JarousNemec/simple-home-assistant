@@ -37,13 +37,8 @@ public class Server
 
     private void InitHttpServer()
     {
-        //todo: edit friendly name "cmnd/objimka/FriendlyName1" - "zarovkavPokoji"
-        //todo: edit device name "cmnd/objimka/DeviceName" - "zarovka_v_Pokoji"
-        //todo: edit device topic "cmnd/objimka2/Topic" - "objimka"
-        //todo: de/activate timers "cmnd/objimka/Timer1" - "{"Enable": 1,"Time": "23:08","Window": 0,"Days": "-MTWTF-","Repeat": 0,"Output": 1,"Action": 2}" https://tasmota.github.io/docs/Timers/#commands
-        //todo: synchronizing time in some interval "cmnd/objimka/Time" - "1682975876"(UTC)
-        //todo: change topic identification to device MAC in device profiles
-        //todo: check for compatibility with common tasmota devices(statistics ...)
+        //todo: get info about devices timers
+        //todo: add simple authentication
         Route.Add("/allDevices",
             (req, res, props) => { res.AsText(_mqttManager.GetAllDiscoveredDevices(), "application/json"); });
         Route.Add("/refresh",
@@ -63,16 +58,60 @@ public class Server
                 }
 
                 res.AsText("done");
-                if (result)
-                {
-                    res.StatusCode = 200;
-                }
-                else
-                {
-                    res.StatusCode = 501;
-                }
+                res.StatusCode = result ? 200 : 501;
             }, "POST");
         
+        Route.Add("/setFriendlyName",
+            (req, res, props) =>
+            {
+                bool result;
+                using (StreamReader reader = new StreamReader(req.InputStream))
+                {
+                    result = _mqttManager.SetFriendlyName(reader.ReadToEnd());
+                }
+
+                res.AsText("done");
+                res.StatusCode = result ? 200 : 501;
+            }, "POST");
+        Route.Add("/setDeviceName",
+            (req, res, props) =>
+            {
+                bool result;
+                using (StreamReader reader = new StreamReader(req.InputStream))
+                {
+                    result = _mqttManager.SetDeviceName(reader.ReadToEnd());
+                }
+
+                res.AsText("done");
+                res.StatusCode = result ? 200 : 501;
+            }, "POST");
+        
+        Route.Add("/setDeviceTopic",
+            (req, res, props) =>
+            {
+                bool result;
+                using (StreamReader reader = new StreamReader(req.InputStream))
+                {
+                    result = _mqttManager.SetDeviceTopic(reader.ReadToEnd());
+                }
+
+                res.AsText("done");
+                res.StatusCode = result ? 200 : 501;
+            }, "POST");
+        
+        Route.Add("/setTimer",
+            (req, res, props) =>
+            {
+                bool result;
+                using (StreamReader reader = new StreamReader(req.InputStream))
+                {
+                    result = _mqttManager.SetTimer(reader.ReadToEnd());
+                }
+
+                res.AsText("done");
+                res.StatusCode = result ? 200 : 501;
+            }, "POST");
+
         Route.Add("/deviceProfiles",
             (req, res, props) =>
             {
@@ -90,14 +129,7 @@ public class Server
                 }
 
                 res.AsText("done");
-                if (result)
-                {
-                    res.StatusCode = 200;
-                }
-                else
-                {
-                    res.StatusCode = 501;
-                }
+                res.StatusCode = result ? 200 : 501;
             }, "POST");
         
         Route.Add("/specificTodayStatistic",

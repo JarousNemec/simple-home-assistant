@@ -16,14 +16,19 @@ public class MqttDevicesDiscoveryWorker : MqttWorker
     private List<string> _unknownTopics;
     private List<string> _knownTopics;
     private DiscoveryStatus _discovering;
-    public MqttDevicesDiscoveryWorker(List<Device> devicesStorage, DiscoveryStatus discovering) : base(new[]{"#"}, ttl: 15000)
+    private string[] _supportedModules;
+
+    public MqttDevicesDiscoveryWorker(List<Device> devicesStorage, DiscoveryStatus discovering) : base(new[] { "#" },
+        ttl: 15000)
     {
         _discovering = discovering;
         _discovering.State = true;
         _unknownTopics = new List<string>();
         _knownTopics = new List<string>();
         _devicesStorage = devicesStorage;
+        _supportedModules = ConfigurationManager.AppSettings.Get("SupportedModules").Split(';');
     }
+
     protected override void SetupRun()
     {
         PublishMqttMessage("cmnd", "tasmotas", "OtaUrl");
@@ -34,7 +39,7 @@ public class MqttDevicesDiscoveryWorker : MqttWorker
     {
         if (_knownTopics.Count < _devicesStorage.Count)
         {
-            for (var i = _devicesStorage.Count-1; i > 0; i--)
+            for (var i = _devicesStorage.Count - 1; i > 0; i--)
             {
                 if (_knownTopics.All(x => x != _devicesStorage[i].Topic))
                 {
@@ -42,7 +47,7 @@ public class MqttDevicesDiscoveryWorker : MqttWorker
                 }
             }
         }
-        
+
 
         if (_unknownTopics.Count > 0)
         {
@@ -52,10 +57,12 @@ public class MqttDevicesDiscoveryWorker : MqttWorker
             {
                 _knownTopics.Add(unknownTopic);
             }
+
             PublishMqttMessage("cmnd", "tasmotas", "Status0");
             _unknownTopics.Clear();
             return;
         }
+
         _knownTopics.Clear();
         _unknownTopics.Clear();
         _discovering.State = false;
@@ -66,12 +73,17 @@ public class MqttDevicesDiscoveryWorker : MqttWorker
     {
         return jsonObject.ContainsKey("OtaUrl") && jsonObject.Count == 1;
     }
-    
+
     private bool IsDiscoverGetInfoMsgResponse(JsonObject jsonObject)
     {
         return jsonObject.ContainsKey("Status") && jsonObject.ContainsKey("StatusPRM") &&
                jsonObject.ContainsKey("StatusFWR") && jsonObject.ContainsKey("StatusLOG") &&
                jsonObject.ContainsKey("StatusNET");
+    }
+
+    private bool IsSupportedModule(JsonObject jsonObject)
+    {
+        return _supportedModules.Contains(jsonObject["Status"]["Module"].ToString());
     }
 
     protected override void ProcessMessage(MqttApplicationMessage msg, JsonObject jsonObject)
@@ -90,10 +102,14 @@ public class MqttDevicesDiscoveryWorker : MqttWorker
         }
         else if (IsDiscoverGetInfoMsgResponse(jsonObject))
         {
+            if (!IsSupportedModule(jsonObject)) return;
             var mac = jsonObject["StatusNET"]?["Mac"]?.ToString();
             var topic = jsonObject["Status"]?["Topic"]?.ToString();
             if (mac != null && _devicesStorage.All(x => x.Mac != mac) && topic != null)
             {
+                var actualTime = Math.Round(DateTime.Now.Subtract(DateTime.MinValue.AddYears(1969)).TotalSeconds, 0);
+                PublishMqttMessage("cmnd", topic, "Time", actualTime.ToString());
+                PublishMqttMessage("cmnd", topic, "Timezone", "0");
                 _devicesStorage.Add(new Device(jsonObject));
             }
         }

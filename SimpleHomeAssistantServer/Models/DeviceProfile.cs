@@ -2,18 +2,18 @@
 
 public class DeviceProfile
 {
-    public string Topic { get; set; }
+    public string Mac { get; set; }
     public Dictionary<DateTime, int> PowerConsummationChangeDateWithSetting { get; set; }
 
-    public DeviceProfile(string topic, Dictionary<DateTime, int> powerConsummationChangeDateWithSettings)
+    public DeviceProfile(string mac, Dictionary<DateTime, int> powerConsummationChangeDateWithSettings)
     {
-        Topic = topic;
+        Mac = mac;
         PowerConsummationChangeDateWithSetting = powerConsummationChangeDateWithSettings;
     }
     
-    public DeviceProfile(string topic)
+    public DeviceProfile(string mac)
     {
-        Topic = topic;
+        Mac = mac;
         PowerConsummationChangeDateWithSetting = new Dictionary<DateTime, int>();
     }
     public DeviceProfile()
