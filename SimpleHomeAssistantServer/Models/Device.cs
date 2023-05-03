@@ -11,7 +11,8 @@ public class Device
     public string Topic { get; set; }
     public int Module { get; set; }
     public bool Power { get; set; }
-    
+    public JsonObject Timers { get; set; }
+
 
     public Device(JsonObject allInfo)
     {
@@ -23,8 +24,8 @@ public class Device
         Module = int.Parse(allInfo["Status"]?[nameof(Module)].ToJsonString());
         Power = allInfo["StatusSTS"]?["POWER"]?.ToString()! == "ON";
     }
-    
-    public Device(string ip, string friendlyName, string deviceName, string mac, string topic, int module, bool power)
+
+    public Device(string ip, string friendlyName, string deviceName, string mac, string topic, int module, bool power, JsonObject timers)
     {
         Ip = ip;
         FriendlyName = friendlyName;
@@ -33,8 +34,9 @@ public class Device
         Topic = topic;
         Module = module;
         Power = power;
+        Timers = timers;
     }
-    
+
     public Device()
     {
         Ip = string.Empty;
@@ -44,6 +46,6 @@ public class Device
         Topic = string.Empty;
         Module = 0;
         Power = false;
+        Timers = new JsonObject();
     }
-    
 }

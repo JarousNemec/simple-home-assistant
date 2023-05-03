@@ -81,6 +81,12 @@ public class MqttDevicesDiscoveryWorker : MqttWorker
                jsonObject.ContainsKey("StatusNET");
     }
 
+    private bool IsTimersGetInfoMsgResponse(JsonObject jsonObject)
+    {
+        return jsonObject.ContainsKey("Timers") && jsonObject.ContainsKey("Timer1") &&
+               jsonObject.ContainsKey("Timer2");
+    }
+
     private bool IsSupportedModule(JsonObject jsonObject)
     {
         return _supportedModules.Contains(jsonObject["Status"]["Module"].ToString());
@@ -110,8 +116,15 @@ public class MqttDevicesDiscoveryWorker : MqttWorker
                 var actualTime = Math.Round(DateTime.Now.Subtract(DateTime.MinValue.AddYears(1969)).TotalSeconds, 0);
                 PublishMqttMessage("cmnd", topic, "Time", actualTime.ToString());
                 PublishMqttMessage("cmnd", topic, "Timezone", "0");
+                PublishMqttMessage("cmnd", topic, "Timers");
                 _devicesStorage.Add(new Device(jsonObject));
             }
+        }
+        else if (IsTimersGetInfoMsgResponse(jsonObject))
+        {
+            var topic = msg.Topic.Split('/')[1];
+            var device = _devicesStorage.FirstOrDefault(x => x.Topic == topic);
+            if (device != null) device.Timers = jsonObject;
         }
     }
 }

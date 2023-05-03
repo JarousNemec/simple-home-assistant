@@ -37,7 +37,6 @@ public class Server
 
     private void InitHttpServer()
     {
-        //todo: get info about devices timers
         //todo: add simple authentication
         Route.Add("/allDevices",
             (req, res, props) => { res.AsText(_mqttManager.GetAllDiscoveredDevices(), "application/json"); });
