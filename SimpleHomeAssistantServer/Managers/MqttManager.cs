@@ -93,24 +93,30 @@ public class MqttManager
         if (data == null) return false;
         
         var isTopicKnown = DevicesRegister.Any(x => x.Topic == data.Payload);
-        return !isTopicKnown && SendBasicMessage(json, "Topic");
+        return !isTopicKnown && SendBasicMessage(json, "Topic", true);
     }
 
     public bool SetDeviceName(string json)
     {
-        return SendBasicMessage(json, "DeviceName");
+        return SendBasicMessage(json, "DeviceName", true);
     }
 
     public bool SetFriendlyName(string json)
     {
-        return SendBasicMessage(json, "FriendlyName1");
+        return SendBasicMessage(json, "FriendlyName1", true);
     }
 
-    private bool SendBasicMessage(string json, string command)
+    private bool SendBasicMessage(string json, string command, bool needRestart = false)
     {
         var data = JsonSerializer.Deserialize<BasicMessage>(json);
         if (data == null) return false;
-        return PublishMqttMessage("cmnd", data.Topic, command, data.Payload);
+        var result = PublishMqttMessage("cmnd", data.Topic, command, data.Payload);
+        if (needRestart)
+        {
+            PublishMqttMessage("cmnd", data.Topic, "Restart", "1");
+        }
+            
+        return result;
     }
 
     private void InitMqttClientMethods()

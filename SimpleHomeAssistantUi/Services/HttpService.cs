@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
@@ -49,7 +50,6 @@ public class HttpService
     public bool SendStringMessage(string url, string msg)
     {
         var data = new StringContent(msg, Encoding.UTF8, "application/json");
-
         using var client = new HttpClient();
 
         var response = client.PostAsync(url,data).Result;

@@ -109,7 +109,7 @@ public class StatisticsManager
         File.WriteAllText(todayStatisticsFileName, data);
     }
 
-    public string GetSpecificTodayStatistic(string topic)
+    public string GetLastSpecificTodayStatistic(string topic)
     {
         return _todayDeviceStatistics.ContainsKey(topic) ? JsonSerializer.Serialize(_todayDeviceStatistics[topic][^1]) : string.Empty;
     }
