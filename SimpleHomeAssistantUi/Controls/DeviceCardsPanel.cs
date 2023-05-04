@@ -2,11 +2,13 @@
 using System.Windows.Forms;
 using SimpleHomeAssistantServer.Models;
 using SimpleHomeAssistantUi.Interfaces;
+using SimpleHomeAssistantUi.Services;
 
 namespace SimpleHomeAssistantUi.Controls;
 
 public partial class DeviceCardsPanel : UserControl
 {
+    public HttpService Service { get; set; }
     public DeviceCardsPanel()
     {
         InitializeComponent();
@@ -20,6 +22,7 @@ public partial class DeviceCardsPanel : UserControl
             var card = CreateCurrentCard(device);
             if (card == null)
                 return;
+            
             _pnlCards.Controls.Add(card);
             Invalidate();
         }
@@ -62,6 +65,7 @@ public partial class DeviceCardsPanel : UserControl
             {
                 var card = new SwitchCard();
                 card.LoadInfo(device);
+                card.Service = Service;
                 return card;
             }
 
@@ -70,6 +74,7 @@ public partial class DeviceCardsPanel : UserControl
             {
                 var card = new DoubleSwitchCard();
                 card.LoadInfo(device);
+                card.Service = Service;
                 return card;
             }
 
@@ -77,6 +82,7 @@ public partial class DeviceCardsPanel : UserControl
             {
                 var card = new SensorCard();
                 card.LoadInfo(device);
+                card.Service = Service;
                 return card;
             }
 

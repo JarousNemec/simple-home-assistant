@@ -2,11 +2,13 @@
 using System.Windows.Forms;
 using SimpleHomeAssistantServer.Models;
 using SimpleHomeAssistantUi.Interfaces;
+using SimpleHomeAssistantUi.Services;
 
 namespace SimpleHomeAssistantUi.Controls;
 
 public partial class DoubleSwitchCard : UserControl, IDeviceCard
 {
+    public HttpService Service { get; set; }
     public DoubleSwitchCard()
     {
         InitializeComponent();

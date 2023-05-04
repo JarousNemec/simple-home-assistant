@@ -17,6 +17,7 @@ public partial class MainOverview : Form
         InitializeComponent();
         _statisticsExplorer = new StatisticsExplorer();
         _httpService = new HttpService();
+        _deviceCardsPanel.Service = _httpService;
     }
 
     private void Form1_Load(object sender, EventArgs e)
@@ -56,5 +57,12 @@ public partial class MainOverview : Form
         _statisticsExplorer.SetDevices(_loadedDevices);
         if (!_statisticsExplorer.Visible)
             _statisticsExplorer.Show();
+    }
+
+    private void _btnAccount_Click(object sender, EventArgs e)
+    {
+        var accountsDialog = new AccountOptionsDialog();
+        accountsDialog.SetService(_httpService);
+        accountsDialog.Show();
     }
 }

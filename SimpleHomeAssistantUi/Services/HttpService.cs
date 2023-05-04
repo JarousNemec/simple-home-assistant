@@ -13,10 +13,28 @@ namespace SimpleHomeAssistantUi.Services;
 public class HttpService
 {
     private HttpClient _client;
+    private AuthCredentials _actualLoggedAccount;
 
     public HttpService()
     {
         _client = new HttpClient();
+        _actualLoggedAccount = new AuthCredentials("---", "---");
+        _client.DefaultRequestHeaders.Add("User", _actualLoggedAccount.User);
+        _client.DefaultRequestHeaders.Add("Password", _actualLoggedAccount.Password);
+    }
+
+    public void SetCredentials(AuthCredentials credentials)
+    {
+        _actualLoggedAccount = credentials;
+        _client.DefaultRequestHeaders.Remove("User");
+        _client.DefaultRequestHeaders.Remove("Password");
+        _client.DefaultRequestHeaders.Add("User", _actualLoggedAccount.User);
+        _client.DefaultRequestHeaders.Add("Password", _actualLoggedAccount.Password);
+    }
+
+    public AuthCredentials GetCredentials()
+    {
+        return _actualLoggedAccount;
     }
 
     public string DownloadString(string url)
@@ -33,38 +51,62 @@ public class HttpService
         }
     }
 
-    public T? DownloadJsonObject<T>(string url)
+    private const string UNAUTHORIZED_MSG = "Cannot communicate because of bad loging credentials";
+
+    public T? DownloadJsonObject<T>(string url)where T : class
     {
         try
         {
-            var data = _client.GetStringAsync(url).Result;
-            return JsonSerializer.Deserialize<T>(data);
+            var response = _client.GetAsync(url).Result;
+            if (response.StatusCode == HttpStatusCode.Unauthorized)
+                MessageBox.Show(UNAUTHORIZED_MSG);
+            return JsonSerializer.Deserialize<T>(response.Content.ReadAsStringAsync().Result);
         }
-        catch (Exception exception)
+        catch (Exception e)
         {
-            Debug.WriteLine(exception.Message);
-            return default;
+            Debug.WriteLine(e.Message);
         }
+
+        return null;
+
     }
 
-    public bool SendStringMessage(string url, string msg)
+    public bool SendMessage(string url, string msg="")
     {
         var data = new StringContent(msg, Encoding.UTF8, "application/json");
-        using var client = new HttpClient();
 
-        var response = client.PostAsync(url,data).Result;
-        if (response.IsSuccessStatusCode) return true;
+        try
+        {
+            var response = _client.PostAsync(url, data).Result;
+            if (response.StatusCode == HttpStatusCode.Unauthorized)
+                MessageBox.Show(UNAUTHORIZED_MSG);
+            if (response.IsSuccessStatusCode) return true;
+            
+        }
+        catch (Exception e)
+        {
+            Debug.WriteLine(e.Message);
+        }
+
         return false;
     }
 
-    public bool SendPostRequest(string url)
+    public string SendMessageAndReturnResponseContent(string url, string msg)
     {
-        var data = new StringContent("refresh", Encoding.UTF8, "text/html");
+        var data = new StringContent(msg, Encoding.UTF8, "application/json");
+        var res = string.Empty;
+        try
+        {
+            var response = _client.PostAsync(url, data).Result;
+            if (response.StatusCode == HttpStatusCode.Unauthorized)
+                MessageBox.Show(UNAUTHORIZED_MSG);
+            res = response.Content.ReadAsStringAsync().Result;
+        }
+        catch (Exception e)
+        {
+            Debug.WriteLine(e.Message);
+        }
 
-        using var client = new HttpClient();
-
-        var response = client.PostAsync(url,data).Result;
-        if (response.IsSuccessStatusCode) return true;
-        return false;
+        return res;
     }
 }

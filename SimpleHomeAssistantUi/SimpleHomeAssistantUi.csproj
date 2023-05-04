@@ -36,6 +36,15 @@
       <Compile Update="Controls\DataChart.cs">
         <SubType>UserControl</SubType>
       </Compile>
+      <Compile Update="Forms\LogInDialog.cs">
+        <SubType>Form</SubType>
+      </Compile>
+      <Compile Update="Forms\AddAccountDialog.cs">
+        <SubType>Form</SubType>
+      </Compile>
+      <Compile Update="Forms\AccountOptionsDialog.cs">
+        <SubType>Form</SubType>
+      </Compile>
     </ItemGroup>
 
     <ItemGroup>

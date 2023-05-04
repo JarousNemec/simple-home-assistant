@@ -67,7 +67,7 @@ public class Server
 
                 res.StatusCode = result ? 200 : 400;
                 res.AsText(result ? "done" : "cannot delete");
-            });
+            }, "POST");
 
         Route.Add("/allDevices",
             (req, res, props) =>
@@ -83,7 +83,7 @@ public class Server
 
                 _mqttManager.DiscoverAvailableDevices();
                 res.AsText("discovering", "application/json");
-            });
+            }, "POST");
 
         Route.Add("/switchPowerState",
             (req, res, props) =>

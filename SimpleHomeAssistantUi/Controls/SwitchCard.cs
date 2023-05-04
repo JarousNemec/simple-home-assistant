@@ -10,11 +10,11 @@ namespace SimpleHomeAssistantUi.Controls;
 
 public partial class SwitchCard : UserControl, IDeviceCard
 {
+    public HttpService Service { get; set; }
     public SwitchCard()
     {
         InitializeComponent();
     }
-
     public Device Info { get; set; }
     public bool Power { get; set; }
 
@@ -52,9 +52,8 @@ public partial class SwitchCard : UserControl, IDeviceCard
 
     private void _btnStateSwitch_Click(object sender, EventArgs e)
     {
-        var http = new HttpService();
         var config = ConfigurationManager.AppSettings;
-        var result = http.SendStringMessage(config.Get("MainEndpoint")+config.Get("SwitchPowerState"),Info.Topic);
+        var result = Service.SendMessage(config.Get("MainEndpoint")+config.Get("SwitchPowerState"),Info.Topic);
         if (result)
         {
             if (Power)
