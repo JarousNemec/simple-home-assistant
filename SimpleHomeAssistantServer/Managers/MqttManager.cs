@@ -159,10 +159,19 @@ public class MqttManager
         return false;
     }
 
-    public async void ConnectToMqttBroker()
+    public void ConnectToMqttBroker()
     {
         retry:
-        var _ = await _client.ConnectAsync(_options);
+        try
+        {
+            var _ = _client.ConnectAsync(_options).Result;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+            Thread.Sleep(500);
+            goto retry;
+        }
         if (!_client.IsConnected)
             goto retry;
     }

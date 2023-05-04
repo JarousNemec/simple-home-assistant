@@ -127,7 +127,16 @@ public abstract class MqttWorker
     private void ConnectToMqttBroker()
     {
         retry:
-        var _ = _client.ConnectAsync(_options).Result;
+        try
+        {
+            var _ = _client.ConnectAsync(_options).Result;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+            Thread.Sleep(500);
+            goto retry;
+        }
         if (!_client.IsConnected)
             goto retry;
     }
