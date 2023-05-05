@@ -9,14 +9,13 @@ namespace SimpleHomeAssistantUi;
 public partial class MainOverview : Form
 {
     private HttpService _httpService;
-    private StatisticsExplorer _statisticsExplorer;
     private List<Device> _loadedDevices;
 
     public MainOverview()
     {
         _loadedDevices = new List<Device>();
         InitializeComponent();
-        _statisticsExplorer = new StatisticsExplorer();
+
         _httpService = new HttpService();
         _deviceCardsPanel.Service = _httpService;
     }
@@ -41,7 +40,9 @@ public partial class MainOverview : Form
 
     private void LoadDevices()
     {
-        var devices = _httpService.DownloadJsonObject<Device[]>(_httpService.GetMainEndpoint() + UserConfigurationManager.Get("AllDevices"));
+        var devices =
+            _httpService.DownloadJsonObject<Device[]>(_httpService.GetMainEndpoint() +
+                                                      UserConfigurationManager.Get("AllDevices"));
         if (devices == null) return;
         _loadedDevices = devices.ToList();
         _deviceCardsPanel.LoadDevices(_loadedDevices);
@@ -54,9 +55,9 @@ public partial class MainOverview : Form
 
     private void _btnStatics_Click(object sender, EventArgs e)
     {
-        _statisticsExplorer.SetDevices(_loadedDevices);
-        if (!_statisticsExplorer.Visible)
-            _statisticsExplorer.Show();
+        var statisticsExplorer = new StatisticsExplorer();
+        statisticsExplorer.SetDevices(_loadedDevices);
+        statisticsExplorer.Show();
     }
 
     private void _btnAccount_Click(object sender, EventArgs e)

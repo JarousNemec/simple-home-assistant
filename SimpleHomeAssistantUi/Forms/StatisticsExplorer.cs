@@ -23,7 +23,32 @@ public partial class StatisticsExplorer : Form
         choseDeviceControl.SetDevices(_loadedDevices);
     }
 
-    private void numericUpDown1_ValueChanged(object sender, EventArgs e)
+    private void _radioDayView_CheckedChanged(object sender, EventArgs e)
+    {
+
+    }
+
+    private void _radioWeekView_CheckedChanged(object sender, EventArgs e)
+    {
+
+    }
+
+    private void _radioMonthView_CheckedChanged(object sender, EventArgs e)
+    {
+
+    }
+
+    private void _radioYearView_CheckedChanged(object sender, EventArgs e)
+    {
+
+    }
+
+    private void _btnExportChart_Click(object sender, EventArgs e)
+    {
+
+    }
+
+    private void _btnViewDataLogTable_Click(object sender, EventArgs e)
     {
 
     }

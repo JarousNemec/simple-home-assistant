@@ -18,14 +18,14 @@ public partial class ChoseDeviceStatisticsControl : UserControl
     }
     
     private const int BUTTONS_MARGIN = 7;
-    private const int BUTTONS_HEIGHT = 14;
+    private const int BUTTONS_HEIGHT = 30;
     private void DisplayDevices()
     {
         for (int i = 0; i < _loadedDevices.Count; i++)
         {
             Button deviceButton = new Button();
             deviceButton.Size = new Size(_pnlDevices.Width - BUTTONS_MARGIN * 2, BUTTONS_HEIGHT);
-            deviceButton.Location = new Point(BUTTONS_MARGIN, BUTTONS_HEIGHT + i * (BUTTONS_MARGIN + BUTTONS_HEIGHT));
+            deviceButton.Location = new Point(BUTTONS_MARGIN, BUTTONS_MARGIN + i * (BUTTONS_MARGIN + BUTTONS_HEIGHT));
             deviceButton.Text = _loadedDevices[i].FriendlyName;
             deviceButton.Name = $"_btn{_loadedDevices[i].DeviceName}";
             deviceButton.Click += DeviceButtonOnClick;
