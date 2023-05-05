@@ -1,6 +1,7 @@
 using System.Configuration;
 using SimpleHomeAssistantServer.Models;
 using SimpleHomeAssistantUi.Forms;
+using SimpleHomeAssistantUi.Managers;
 using SimpleHomeAssistantUi.Services;
 
 namespace SimpleHomeAssistantUi;
@@ -40,8 +41,7 @@ public partial class MainOverview : Form
 
     private void LoadDevices()
     {
-        var config = ConfigurationManager.AppSettings;
-        var devices = _httpService.DownloadJsonObject<Device[]>(config.Get("MainEndpoint") + config.Get("AllDevices"));
+        var devices = _httpService.DownloadJsonObject<Device[]>(_httpService.GetMainEndpoint() + UserConfigurationManager.Get("AllDevices"));
         if (devices == null) return;
         _loadedDevices = devices.ToList();
         _deviceCardsPanel.LoadDevices(_loadedDevices);
@@ -64,5 +64,11 @@ public partial class MainOverview : Form
         var accountsDialog = new AccountOptionsDialog();
         accountsDialog.SetService(_httpService);
         accountsDialog.Show();
+    }
+
+    private void _btnConfiguration_Click(object sender, EventArgs e)
+    {
+        var configurationDialog = new ConfigurationDialog();
+        configurationDialog.Show();
     }
 }

@@ -32,7 +32,7 @@ partial class MainOverview
         components = new System.ComponentModel.Container();
         _updater = new System.Windows.Forms.Timer(components);
         _lblDateTime = new Label();
-        _btnSettings = new Button();
+        _btnConfiguration = new Button();
         _btnAccount = new Button();
         _deviceCardsPanel = new Controls.DeviceCardsPanel();
         _btnRefresh = new Button();
@@ -55,15 +55,16 @@ partial class MainOverview
         _lblDateTime.TabIndex = 0;
         _lblDateTime.Text = "01:01:01 01.01.0001";
         // 
-        // _btnSettings
+        // _btnConfiguration
         // 
-        _btnSettings.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-        _btnSettings.Location = new Point(12, 9);
-        _btnSettings.Name = "_btnSettings";
-        _btnSettings.Size = new Size(108, 25);
-        _btnSettings.TabIndex = 1;
-        _btnSettings.Text = "Settings";
-        _btnSettings.UseVisualStyleBackColor = true;
+        _btnConfiguration.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+        _btnConfiguration.Location = new Point(12, 9);
+        _btnConfiguration.Name = "_btnConfiguration";
+        _btnConfiguration.Size = new Size(108, 25);
+        _btnConfiguration.TabIndex = 1;
+        _btnConfiguration.Text = "Configuration";
+        _btnConfiguration.UseVisualStyleBackColor = true;
+        _btnConfiguration.Click += _btnConfiguration_Click;
         // 
         // _btnAccount
         // 
@@ -81,6 +82,7 @@ partial class MainOverview
         _deviceCardsPanel.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
         _deviceCardsPanel.Location = new Point(12, 40);
         _deviceCardsPanel.Name = "_deviceCardsPanel";
+        _deviceCardsPanel.Service = null;
         _deviceCardsPanel.Size = new Size(892, 679);
         _deviceCardsPanel.TabIndex = 5;
         // 
@@ -115,7 +117,7 @@ partial class MainOverview
         Controls.Add(_btnRefresh);
         Controls.Add(_deviceCardsPanel);
         Controls.Add(_btnAccount);
-        Controls.Add(_btnSettings);
+        Controls.Add(_btnConfiguration);
         Controls.Add(_lblDateTime);
         MinimumSize = new Size(570, 770);
         Name = "MainOverview";
@@ -129,7 +131,7 @@ partial class MainOverview
 
     private System.Windows.Forms.Timer _updater;
     private Label _lblDateTime;
-    private Button _btnSettings;
+    private Button _btnConfiguration;
     private Button _btnAccount;
     private Controls.DeviceCardsPanel _deviceCardsPanel;
     private Button _btnRefresh;

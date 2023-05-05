@@ -7,6 +7,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using Newtonsoft.Json.Linq;
 using SimpleHomeAssistantServer.Models;
+using SimpleHomeAssistantUi.Managers;
 
 namespace SimpleHomeAssistantUi.Services;
 
@@ -55,6 +56,7 @@ public class HttpService
 
     public T? DownloadJsonObject<T>(string url)where T : class
     {
+        Debug.WriteLine("Request to:"+url);
         try
         {
             var response = _client.GetAsync(url).Result;
@@ -74,7 +76,7 @@ public class HttpService
     public bool SendMessage(string url, string msg="")
     {
         var data = new StringContent(msg, Encoding.UTF8, "application/json");
-
+        Debug.WriteLine("Request to:"+url);
         try
         {
             var response = _client.PostAsync(url, data).Result;
@@ -108,5 +110,11 @@ public class HttpService
         }
 
         return res;
+    }
+
+    public string GetMainEndpoint()
+    {
+        return
+            $"{UserConfigurationManager.Get("MainEndpointProtocol")}{UserConfigurationManager.Get("MainEndpointHost")}{UserConfigurationManager.Get("MainEndpointPort")}";
     }
 }

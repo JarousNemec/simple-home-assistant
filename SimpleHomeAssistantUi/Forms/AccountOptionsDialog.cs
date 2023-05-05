@@ -2,6 +2,7 @@
 using System.Text.Json;
 using System.Windows.Forms;
 using SimpleHomeAssistantServer.Models;
+using SimpleHomeAssistantUi.Managers;
 using SimpleHomeAssistantUi.Services;
 
 namespace SimpleHomeAssistantUi.Forms;
@@ -41,8 +42,7 @@ public partial class AccountOptionsDialog : Form
 
     private void _btnDelete_Click(object sender, EventArgs e)
     {
-        var config = ConfigurationManager.AppSettings;
-        var res = _service.SendMessage(config.Get("MainEndpoint") + config.Get("DeleteAccount"));
+        var res = _service.SendMessage(_service.GetMainEndpoint() + UserConfigurationManager.Get("DeleteAccount"));
         if (!res) MessageBox.Show("Cannot delete account");
         else
             _service.SetCredentials(new AuthCredentials("---", "---"));

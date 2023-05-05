@@ -2,6 +2,7 @@
 using System.Windows.Forms;
 using Newtonsoft.Json;
 using SimpleHomeAssistantServer.Models;
+using SimpleHomeAssistantUi.Managers;
 using SimpleHomeAssistantUi.Services;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
@@ -23,9 +24,8 @@ public partial class AddAccountDialog : Form
 
     private void _btnAdd_Click(object sender, EventArgs e)
     {
-        var config = ConfigurationManager.AppSettings;
         var credence = new AuthCredentials(_txtUser.Text, _txtPassword.Text);
-        var res = _service.SendMessage(config.Get("MainEndpoint") + config.Get("AddAccount"),
+        var res = _service.SendMessage(_service.GetMainEndpoint() + UserConfigurationManager.Get("AddAccount"),
             JsonSerializer.Serialize(credence));
         if (!res) MessageBox.Show("Cannot add account");
         else

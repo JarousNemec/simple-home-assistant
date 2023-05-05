@@ -4,6 +4,7 @@ using System.Text.Json.Nodes;
 using System.Windows.Forms;
 using SimpleHomeAssistantServer.Models;
 using SimpleHomeAssistantUi.Interfaces;
+using SimpleHomeAssistantUi.Managers;
 using SimpleHomeAssistantUi.Services;
 
 namespace SimpleHomeAssistantUi.Controls;
@@ -52,8 +53,7 @@ public partial class SwitchCard : UserControl, IDeviceCard
 
     private void _btnStateSwitch_Click(object sender, EventArgs e)
     {
-        var config = ConfigurationManager.AppSettings;
-        var result = Service.SendMessage(config.Get("MainEndpoint")+config.Get("SwitchPowerState"),Info.Topic);
+        var result = Service.SendMessage(Service.GetMainEndpoint()+UserConfigurationManager.Get("SwitchPowerState"),Info.Topic);
         if (result)
         {
             if (Power)

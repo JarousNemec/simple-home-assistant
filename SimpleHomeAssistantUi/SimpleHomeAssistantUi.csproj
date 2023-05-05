@@ -45,6 +45,12 @@
       <Compile Update="Forms\AccountOptionsDialog.cs">
         <SubType>Form</SubType>
       </Compile>
+      <Compile Update="Forms\ConfigurationDialog.cs">
+        <SubType>Form</SubType>
+      </Compile>
+      <Compile Update="Controls\PropertyControl.cs">
+        <SubType>UserControl</SubType>
+      </Compile>
     </ItemGroup>
 
     <ItemGroup>
