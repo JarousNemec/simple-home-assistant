@@ -36,7 +36,7 @@ partial class SwitchCard
         label2 = new Label();
         _lblIpAddress = new Label();
         _btnStateSwitch = new Button();
-        _btnMore = new Button();
+        _btnSettings = new Button();
         ((ISupportInitialize)_picDeviceIcon).BeginInit();
         SuspendLayout();
         // 
@@ -91,22 +91,23 @@ partial class SwitchCard
         _btnStateSwitch.UseVisualStyleBackColor = true;
         _btnStateSwitch.Click += _btnStateSwitch_Click;
         // 
-        // _btnMore
+        // _btnSettings
         // 
-        _btnMore.Font = new Font("Segoe UI Semibold", 14.25F, FontStyle.Bold, GraphicsUnit.Point);
-        _btnMore.Location = new Point(14, 264);
-        _btnMore.Name = "_btnMore";
-        _btnMore.Size = new Size(245, 40);
-        _btnMore.TabIndex = 5;
-        _btnMore.Text = "More";
-        _btnMore.UseVisualStyleBackColor = true;
+        _btnSettings.Font = new Font("Segoe UI Semibold", 14.25F, FontStyle.Bold, GraphicsUnit.Point);
+        _btnSettings.Location = new Point(14, 264);
+        _btnSettings.Name = "_btnSettings";
+        _btnSettings.Size = new Size(245, 40);
+        _btnSettings.TabIndex = 5;
+        _btnSettings.Text = "Settings";
+        _btnSettings.UseVisualStyleBackColor = true;
+        _btnSettings.Click += _btnSettings_Click;
         // 
         // SwitchCard
         // 
         AutoScaleDimensions = new SizeF(7F, 15F);
         AutoScaleMode = AutoScaleMode.Font;
         BorderStyle = BorderStyle.FixedSingle;
-        Controls.Add(_btnMore);
+        Controls.Add(_btnSettings);
         Controls.Add(_btnStateSwitch);
         Controls.Add(_lblIpAddress);
         Controls.Add(label2);
@@ -125,5 +126,5 @@ partial class SwitchCard
     private Label label2;
     private Label _lblIpAddress;
     private Button _btnStateSwitch;
-    private Button _btnMore;
+    private Button _btnSettings;
 }

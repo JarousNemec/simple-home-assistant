@@ -9,7 +9,6 @@
 
     <ItemGroup>
       <PackageReference Include="MQTTnet" Version="4.1.4.563" />
-      <PackageReference Include="Newtonsoft.Json" Version="13.0.3-beta1" />
       <PackageReference Include="Simple-HTTP" Version="1.0.6" />
       <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.0-preview.2.23128.3" />
     </ItemGroup>

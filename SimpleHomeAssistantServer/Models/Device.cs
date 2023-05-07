@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Nodes;
+﻿using System.Collections.Specialized;
+using System.Text.Json.Nodes;
 
 namespace SimpleHomeAssistantServer.Models;
 
@@ -11,11 +12,14 @@ public class Device
     public string Topic { get; set; }
     public int Module { get; set; }
     public bool Power { get; set; }
-    public JsonObject Timers { get; set; }
+    public TimerActions Enabled { get; set; }
+    public List<TimerSettings> Timers { get; set; }
+    public DeviceProfile Profile { get; set; }
 
 
-    public Device(JsonObject allInfo)
+    public Device(JsonObject allInfo, DeviceProfile profile)
     {
+        Profile = profile;
         Ip = allInfo["StatusNET"]?["IPAddress"].ToString()!;
         FriendlyName = allInfo["Status"]?[nameof(FriendlyName)]?[0].ToString()!;
         DeviceName = allInfo["Status"]?[nameof(DeviceName)].ToString()!;
@@ -23,9 +27,10 @@ public class Device
         Topic = allInfo["Status"]?[nameof(Topic)].ToString()!;
         Module = int.Parse(allInfo["Status"]?[nameof(Module)].ToJsonString());
         Power = allInfo["StatusSTS"]?["POWER"]?.ToString()! == "ON";
+        Timers = new List<TimerSettings>();
     }
 
-    public Device(string ip, string friendlyName, string deviceName, string mac, string topic, int module, bool power, JsonObject timers)
+    public Device(string ip, string friendlyName, string deviceName, string mac, string topic, int module, bool power, List<TimerSettings> timers, DeviceProfile profile)
     {
         Ip = ip;
         FriendlyName = friendlyName;
@@ -35,6 +40,7 @@ public class Device
         Module = module;
         Power = power;
         Timers = timers;
+        Profile = profile;
     }
 
     public Device()
@@ -46,6 +52,7 @@ public class Device
         Topic = string.Empty;
         Module = 0;
         Power = false;
-        Timers = new JsonObject();
+        Timers = new List<TimerSettings>();
+        Profile = new DeviceProfile();
     }
 }

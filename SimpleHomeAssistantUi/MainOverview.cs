@@ -50,6 +50,7 @@ public partial class MainOverview : Form
 
     private void _btnRefresh_Click(object sender, EventArgs e)
     {
+        _httpService.SendMessage(_httpService.GetMainEndpoint() + UserConfigurationManager.Get("Refresh"));
         LoadDevices();
     }
 

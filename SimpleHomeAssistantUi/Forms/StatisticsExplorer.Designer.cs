@@ -109,7 +109,7 @@ partial class StatisticsExplorer
         _btnViewDataLogTable.Name = "_btnViewDataLogTable";
         _btnViewDataLogTable.Size = new Size(245, 34);
         _btnViewDataLogTable.TabIndex = 6;
-        _btnViewDataLogTable.Text = "View all data in table";
+        _btnViewDataLogTable.Text = "View data in table";
         _btnViewDataLogTable.UseVisualStyleBackColor = true;
         _btnViewDataLogTable.Click += _btnViewDataLogTable_Click;
         // 

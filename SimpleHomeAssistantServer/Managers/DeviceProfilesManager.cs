@@ -60,7 +60,7 @@ public class DeviceProfilesManager
         if (change) Save();
     }
 
-    public bool EditProfile(string newProfile)
+    public bool EditProfile(string newProfile, List<Device> actualDevices)
     {
         var profile = JsonSerializer.Deserialize<DeviceProfile>(newProfile);
         if (profile == null) return false;
@@ -68,9 +68,15 @@ public class DeviceProfilesManager
         {
             if (_profiles[i].Mac != profile.Mac) continue;
             _profiles[i] = profile;
+
+            var device = actualDevices.FirstOrDefault(x => x.Mac == profile.Mac);
+            if (device == null) continue;
+            device.Profile = profile;
+
             Save();
             break;
         }
+
         return true;
     }
 }

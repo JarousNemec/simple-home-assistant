@@ -47,6 +47,7 @@ partial class MainOverview
         // 
         // _lblDateTime
         // 
+        _lblDateTime.Anchor = AnchorStyles.Top | AnchorStyles.Right;
         _lblDateTime.AutoSize = true;
         _lblDateTime.Font = new Font("Segoe UI Semibold", 14.25F, FontStyle.Bold, GraphicsUnit.Point);
         _lblDateTime.Location = new Point(731, 9);
@@ -57,7 +58,6 @@ partial class MainOverview
         // 
         // _btnConfiguration
         // 
-        _btnConfiguration.Anchor = AnchorStyles.Top | AnchorStyles.Right;
         _btnConfiguration.Location = new Point(12, 9);
         _btnConfiguration.Name = "_btnConfiguration";
         _btnConfiguration.Size = new Size(108, 25);
@@ -68,7 +68,6 @@ partial class MainOverview
         // 
         // _btnAccount
         // 
-        _btnAccount.Anchor = AnchorStyles.Top | AnchorStyles.Right;
         _btnAccount.Location = new Point(240, 9);
         _btnAccount.Name = "_btnAccount";
         _btnAccount.Size = new Size(108, 25);
@@ -88,7 +87,6 @@ partial class MainOverview
         // 
         // _btnRefresh
         // 
-        _btnRefresh.Anchor = AnchorStyles.Top | AnchorStyles.Right;
         _btnRefresh.Location = new Point(354, 9);
         _btnRefresh.Name = "_btnRefresh";
         _btnRefresh.Size = new Size(108, 25);
@@ -99,7 +97,6 @@ partial class MainOverview
         // 
         // _btnStatistics
         // 
-        _btnStatistics.Anchor = AnchorStyles.Top | AnchorStyles.Right;
         _btnStatistics.Location = new Point(126, 9);
         _btnStatistics.Name = "_btnStatistics";
         _btnStatistics.Size = new Size(108, 25);

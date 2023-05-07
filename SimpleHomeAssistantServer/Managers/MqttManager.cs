@@ -21,9 +21,11 @@ public class MqttManager
     private Timer _discoveryTimer;
     private StatisticsManager _statisticsManager;
     private DiscoveryStatus _discoveryStatus;
+    private DeviceProfilesManager _profilesManager;
 
-    public MqttManager()
+    public MqttManager(DeviceProfilesManager profilesManager)
     {
+        _profilesManager = profilesManager;
         _discoveryStatus = new DiscoveryStatus();
         DevicesRegister = new List<Device>();
         var mqttFactory = new MqttFactory();
@@ -39,7 +41,7 @@ public class MqttManager
         InitMqttClientMethods();
 
         _discoveryTimer = new Timer();
-        _discoveryTimer.Interval = 60000;
+        _discoveryTimer.Interval = 600000;
         _discoveryTimer.AutoReset = false;
         _discoveryTimer.Elapsed += DiscoveryTimerElapsed;
         _discoveryTimer.Start();
@@ -58,7 +60,8 @@ public class MqttManager
     public void DiscoverAvailableDevices()
     {
         if (_discoveryStatus.State) return;
-        var statisticsWorker = new Thread(new MqttDevicesDiscoveryWorker(DevicesRegister, _discoveryStatus).Run);
+        var statisticsWorker =
+            new Thread(new MqttDevicesDiscoveryWorker(DevicesRegister, _discoveryStatus, _profilesManager).Run);
         statisticsWorker.Start();
     }
 
@@ -69,7 +72,8 @@ public class MqttManager
         {
             foreach (var device in DevicesRegister)
             {
-                device.Power = records[device.Topic].State;
+                if (records.ContainsKey(device.Topic))
+                    device.Power = records[device.Topic].State;
             }
         }
 
@@ -78,7 +82,11 @@ public class MqttManager
 
     public bool ToggleDeviceState(string topic)
     {
-        return PublishMqttMessage("cmnd", topic, "Power", "Toggle");
+        var res = PublishMqttMessage("cmnd", topic, "Power", "Toggle");
+        if (!res) return res;
+        var device = DevicesRegister.FirstOrDefault(x => x.Topic == topic);
+        if (device != null) device.Power = !device.Power;
+        return res;
     }
 
     public bool SetTimer(string json)
@@ -86,24 +94,52 @@ public class MqttManager
         var settings = JsonSerializer.Deserialize<TimerSettings>(json);
         return settings != null && PublishMqttMessage("cmnd", settings.Topic, settings.TimerName, json);
     }
-    
+
     public bool SetDeviceTopic(string json)
     {
         var data = JsonSerializer.Deserialize<BasicMessage>(json);
         if (data == null) return false;
-        
+
         var isTopicKnown = DevicesRegister.Any(x => x.Topic == data.Payload);
-        return !isTopicKnown && SendBasicMessage(json, "Topic", true);
+        var res = SendBasicMessage(json, "Topic", true);
+        if (res)
+        {
+            var device = DevicesRegister.FirstOrDefault(x => x.Topic == data.Topic);
+            if (device == null) return !isTopicKnown && res;
+            device.Topic = data.Payload;
+        }
+
+        return !isTopicKnown && res;
     }
 
     public bool SetDeviceName(string json)
     {
-        return SendBasicMessage(json, "DeviceName", true);
+        var res = SendBasicMessage(json, "DeviceName", true);
+        if (res)
+        {
+            var data = JsonSerializer.Deserialize<BasicMessage>(json);
+            if (data == null) return res;
+            var device = DevicesRegister.FirstOrDefault(x => x.Topic == data.Topic);
+            if (device == null) return res;
+            device.DeviceName = data.Payload;
+        }
+
+        return res;
     }
 
     public bool SetFriendlyName(string json)
     {
-        return SendBasicMessage(json, "FriendlyName1", true);
+        var res = SendBasicMessage(json, "FriendlyName1", true);
+        if (res)
+        {
+            var data = JsonSerializer.Deserialize<BasicMessage>(json);
+            if (data == null) return res;
+            var device = DevicesRegister.FirstOrDefault(x => x.Topic == data.Topic);
+            if (device == null) return res;
+            device.FriendlyName = data.Payload;
+        }
+
+        return res;
     }
 
     private bool SendBasicMessage(string json, string command, bool needRestart = false)
@@ -115,7 +151,7 @@ public class MqttManager
         {
             PublishMqttMessage("cmnd", data.Topic, "Restart", "1");
         }
-            
+
         return result;
     }
 
@@ -172,6 +208,7 @@ public class MqttManager
             Thread.Sleep(500);
             goto retry;
         }
+
         if (!_client.IsConnected)
             goto retry;
     }

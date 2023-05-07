@@ -19,7 +19,7 @@ public class HttpService
     public HttpService()
     {
         _client = new HttpClient();
-        _actualLoggedAccount = new AuthCredentials("---", "---");
+        _actualLoggedAccount = new AuthCredentials("admin", "pass");
         _client.DefaultRequestHeaders.Add("User", _actualLoggedAccount.User);
         _client.DefaultRequestHeaders.Add("Password", _actualLoggedAccount.Password);
     }

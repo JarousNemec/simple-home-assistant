@@ -17,10 +17,13 @@ public class MqttDevicesDiscoveryWorker : MqttWorker
     private List<string> _knownTopics;
     private DiscoveryStatus _discovering;
     private string[] _supportedModules;
+    private DeviceProfilesManager _profilesManager;
 
-    public MqttDevicesDiscoveryWorker(List<Device> devicesStorage, DiscoveryStatus discovering) : base(new[] { "#" },
+    public MqttDevicesDiscoveryWorker(List<Device> devicesStorage, DiscoveryStatus discovering,
+        DeviceProfilesManager profilesManager) : base(new[] { "#" },
         ttl: 15000)
     {
+        _profilesManager = profilesManager;
         _discovering = discovering;
         _discovering.State = true;
         _unknownTopics = new List<string>();
@@ -116,15 +119,33 @@ public class MqttDevicesDiscoveryWorker : MqttWorker
                 var actualTime = Math.Round(DateTime.Now.Subtract(DateTime.MinValue.AddYears(1969)).TotalSeconds, 0);
                 PublishMqttMessage("cmnd", topic, "Time", actualTime.ToString());
                 PublishMqttMessage("cmnd", topic, "Timezone", "0");
-                PublishMqttMessage("cmnd", topic, "Timers");
-                _devicesStorage.Add(new Device(jsonObject));
+                PublishMqttMessage("cmnd", topic, "Timers", "1");
+                var profile = _profilesManager.GetProfiles().FirstOrDefault(x => x.Mac == mac) ?? new DeviceProfile(mac);
+                _devicesStorage.Add(new Device(jsonObject, profile));
             }
         }
         else if (IsTimersGetInfoMsgResponse(jsonObject))
         {
             var topic = msg.Topic.Split('/')[1];
             var device = _devicesStorage.FirstOrDefault(x => x.Topic == topic);
-            if (device != null) device.Timers = jsonObject;
+            if (device != null) SetTimersToDevice(device, topic, jsonObject);
+        }
+    }
+
+    private void SetTimersToDevice(Device device, string topic, JsonObject jsonObject)
+    {
+        device.Enabled = jsonObject["Timers"].ToString() == "OFF" ? TimerActions.Off : TimerActions.On;
+        for (int i = 0; i < jsonObject.Count; i++)
+        {
+            var name = "Timer" + i;
+            if (jsonObject.ContainsKey(name))
+            {
+                var settings = new TimerSettings(name, topic, (int)jsonObject[name]["Enable"],
+                    (int)jsonObject[name]["Mode"], jsonObject[name]["Time"].ToString(), (int)jsonObject[name]["Window"],
+                    jsonObject[name]["Days"].ToString(), (int)jsonObject[name]["Repeat"],
+                    (int)jsonObject[name]["Output"], (int)jsonObject[name]["Action"]);
+                device.Timers.Add(settings);
+            }
         }
     }
 }

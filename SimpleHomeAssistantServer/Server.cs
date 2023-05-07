@@ -17,10 +17,11 @@ public class Server
     public Server()
     {
         CheckSystemRequiredDirectories();
-        _mqttManager = new MqttManager();
-        _statisticsManager = new StatisticsManager(_mqttManager.DevicesRegister);
         _deviceProfilesManager = new DeviceProfilesManager();
         _authenticationManager = new AuthenticationManager();
+        _mqttManager = new MqttManager(_deviceProfilesManager);
+        _statisticsManager = new StatisticsManager(_mqttManager.DevicesRegister);
+        
         _mqttManager.SetStatisticManager(_statisticsManager);
         InitHttpServerEndpoints();
     }
@@ -176,7 +177,7 @@ public class Server
                 var result = true;
                 using (var reader = new StreamReader(req.InputStream))
                 {
-                    result = _deviceProfilesManager.EditProfile(reader.ReadToEnd());
+                    result = _deviceProfilesManager.EditProfile(reader.ReadToEnd(), _mqttManager.DevicesRegister);
                 }
 
                 res.StatusCode = result ? 200 : 501;
@@ -239,6 +240,7 @@ public class Server
         _mqttManager.DiscoverAvailableDevices();
         Thread.Sleep(20000);
         _statisticsManager.Run();
+        _statisticsManager.DownloadStatistics();
 
         HttpServer.ListenAsync(10002, CancellationToken.None, Route.OnHttpRequestAsync).RunInBackground();
 
