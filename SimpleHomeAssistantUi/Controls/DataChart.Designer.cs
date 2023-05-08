@@ -42,6 +42,7 @@ partial class DataChart
         _pnlChart.Name = "_pnlChart";
         _pnlChart.Size = new Size(325, 266);
         _pnlChart.TabIndex = 0;
+        _pnlChart.Paint += _pnlChart_Paint;
         // 
         // DataChart
         // 

@@ -59,10 +59,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Models" />
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\SimpleHomeAssistantServer\SimpleHomeAssistantServer.csproj" />
     </ItemGroup>
 

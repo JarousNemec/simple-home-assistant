@@ -56,6 +56,7 @@ partial class StatisticsExplorer
         _deviceStatisticsChart.Name = "_deviceStatisticsChart";
         _deviceStatisticsChart.Size = new Size(742, 504);
         _deviceStatisticsChart.TabIndex = 1;
+        _deviceStatisticsChart.Paint += _deviceStatisticsChart_Paint;
         // 
         // _radioYearView
         // 

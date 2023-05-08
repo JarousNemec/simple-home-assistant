@@ -30,7 +30,7 @@ public class StatisticsManager
 
         _statisticsLogger = new Timer();
         _statisticsLogger.AutoReset = true;
-        _statisticsLogger.Interval = 360000;
+        _statisticsLogger.Interval = 60000;
         _statisticsLogger.Elapsed += StatisticsLoggerOnElapsed;
     }
 

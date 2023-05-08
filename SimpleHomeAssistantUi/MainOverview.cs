@@ -24,6 +24,9 @@ public partial class MainOverview : Form
     {
         _updater_Tick(sender, e);
         LoadDevices();
+        var statisticsExplorer = new StatisticsExplorer();
+        statisticsExplorer.SetDevices(_loadedDevices, _httpService);
+        statisticsExplorer.Show();
     }
 
     private void _updater_Tick(object sender, EventArgs e)
@@ -57,7 +60,7 @@ public partial class MainOverview : Form
     private void _btnStatics_Click(object sender, EventArgs e)
     {
         var statisticsExplorer = new StatisticsExplorer();
-        statisticsExplorer.SetDevices(_loadedDevices);
+        statisticsExplorer.SetDevices(_loadedDevices, _httpService);
         statisticsExplorer.Show();
     }
 

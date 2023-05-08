@@ -205,7 +205,7 @@ public class MqttManager
         catch (Exception e)
         {
             Console.WriteLine(e.Message);
-            Thread.Sleep(500);
+            Thread.Sleep(2000);
             goto retry;
         }
 
