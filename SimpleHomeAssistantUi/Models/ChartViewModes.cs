@@ -2,5 +2,5 @@
 
 public enum ChartViewModes
 {
-    Day, Week, Month, Year
+    Day, Month, Year
 }
