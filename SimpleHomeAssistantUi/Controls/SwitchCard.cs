@@ -2,6 +2,7 @@
 using System.Security.Cryptography;
 using System.Text.Json.Nodes;
 using System.Windows.Forms;
+using SimpleHomeAssistantServer.Factories;
 using SimpleHomeAssistantServer.Models;
 using SimpleHomeAssistantUi.Forms;
 using SimpleHomeAssistantUi.Interfaces;
@@ -54,10 +55,11 @@ public partial class SwitchCard : UserControl, IDeviceCard
         }
     }
 
-    private void _btnStateSwitch_Click(object sender, EventArgs e)
+    private async void _btnStateSwitch_Click(object sender, EventArgs e)
     {
-        var result = Service.SendMessage(Service.GetMainEndpoint() + UserConfigurationManager.Get("SwitchPowerState"),
-            Info.Topic);
+        using var client = HttpClientFactory.GetClient();
+        var result = await Service.SendMessage(
+            Service.GetMainEndpoint() + UserConfigurationManager.Get("SwitchPowerState"), client, Info.Topic);
         if (result)
         {
             if (Power)

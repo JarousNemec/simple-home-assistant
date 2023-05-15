@@ -5,6 +5,8 @@
         <TargetFramework>net6.0-windows</TargetFramework>
         <Nullable>enable</Nullable>
         <UseWindowsForms>true</UseWindowsForms>
+        <EnableWindowsTargeting>true</EnableWindowsTargeting>
+        <EnableLinuxTargeting>true</EnableLinuxTargeting>
         <ImplicitUsings>enable</ImplicitUsings>
     </PropertyGroup>
 

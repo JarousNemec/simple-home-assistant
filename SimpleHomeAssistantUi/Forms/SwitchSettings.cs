@@ -2,6 +2,7 @@
 using System.Configuration;
 using System.Text.Json;
 using System.Windows.Forms;
+using SimpleHomeAssistantServer.Factories;
 using SimpleHomeAssistantServer.Models;
 using SimpleHomeAssistantUi.Services;
 
@@ -33,6 +34,7 @@ public partial class SwitchSettings : Form
             _numPowerConsumption.Value = 0;
             return;
         }
+
         var recordValue = device.Profile.PowerConsummationChangeDateWithSetting.Last().Value;
         _numPowerConsumption.Value = recordValue;
     }
@@ -45,47 +47,57 @@ public partial class SwitchSettings : Form
         timerSettings.Show();
     }
 
-    private void TimerSettingsOnSave(TimerSettings settings)
+    private async void TimerSettingsOnSave(TimerSettings settings)
     {
+        using var client = HttpClientFactory.GetClient();
         var msg = JsonSerializer.Serialize(settings);
-        var res = _service.SendMessage(_service.GetMainEndpoint() + _config.Get("SetTimer"), msg);
+        var res = await _service.SendMessage(_service.GetMainEndpoint() + _config.Get("SetTimer"),client, msg);
         if (!res) return;
         var i = _device.Timers.FindIndex(x => x.TimerName == settings.TimerName);
         _device.Timers[i] = settings;
     }
 
-    private void _btnPowerConsumptionUpdate_Click(object sender, EventArgs e)
+    private async void _btnPowerConsumptionUpdate_Click(object sender, EventArgs e)
     {
+        using var client = HttpClientFactory.GetClient();
         if (_numPowerConsumption.Value < 1) return;
         _device.Profile.PowerConsummationChangeDateWithSetting.Add(DateTime.Now, (int)_numPowerConsumption.Value);
         var msg = JsonSerializer.Serialize(_device.Profile);
-        _service.SendMessage(_service.GetMainEndpoint() + _config.Get("EditProfile"), msg);
-    }
-
-    private void _btnTopicUpdate_Click(object sender, EventArgs e)
-    {
-        var msg = JsonSerializer.Serialize(new BasicMessage() { Topic = _device.Topic, Payload = _txtTopic.Text });
-        var res =_service.SendMessage(_service.GetMainEndpoint() + _config.Get("SetDeviceTopic"), msg);
+        var res = await _service.SendMessage(_service.GetMainEndpoint() + _config.Get("EditProfile"),client, msg);
         if (res)
         {
             _device.Topic = _txtTopic.Text;
         }
     }
 
-    private void _btnDeviceNameUpdate_Click(object sender, EventArgs e)
+    private async void _btnTopicUpdate_Click(object sender, EventArgs e)
     {
+        using var client = HttpClientFactory.GetClient();
+        var msg = JsonSerializer.Serialize(new BasicMessage() { Topic = _device.Topic, Payload = _txtTopic.Text });
+        var res = await _service.SendMessage(_service.GetMainEndpoint() + _config.Get("SetDeviceTopic"),client, msg);
+        if (res)
+        {
+            _device.Topic = _txtTopic.Text;
+        }
+    }
+
+    private async void _btnDeviceNameUpdate_Click(object sender, EventArgs e)
+    {
+        using var client = HttpClientFactory.GetClient();
         var msg = JsonSerializer.Serialize(new BasicMessage() { Topic = _device.Topic, Payload = _txtDeviceName.Text });
-        var res =_service.SendMessage(_service.GetMainEndpoint() + _config.Get("SetDeviceName"), msg);
+        var res = await _service.SendMessage(_service.GetMainEndpoint() + _config.Get("SetDeviceName"),client, msg);
         if (res)
         {
             _device.DeviceName = _txtDeviceName.Text;
         }
     }
 
-    private void _btnFriendlyNameUpdate_Click(object sender, EventArgs e)
+    private async void _btnFriendlyNameUpdate_Click(object sender, EventArgs e)
     {
-        var msg = JsonSerializer.Serialize(new BasicMessage() { Topic = _device.Topic, Payload = _txtFrienlyName.Text });
-        var res = _service.SendMessage(_service.GetMainEndpoint() + _config.Get("SetFriendlyName"), msg);
+        using var client = HttpClientFactory.GetClient();
+        var msg = JsonSerializer.Serialize(new BasicMessage()
+            { Topic = _device.Topic, Payload = _txtFrienlyName.Text });
+        var res = await _service.SendMessage(_service.GetMainEndpoint() + _config.Get("SetFriendlyName"),client, msg);
         if (res)
         {
             _device.FriendlyName = _txtFrienlyName.Text;

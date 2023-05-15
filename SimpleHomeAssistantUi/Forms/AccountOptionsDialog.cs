@@ -1,6 +1,7 @@
 ﻿using System.Configuration;
 using System.Text.Json;
 using System.Windows.Forms;
+using SimpleHomeAssistantServer.Factories;
 using SimpleHomeAssistantServer.Models;
 using SimpleHomeAssistantUi.Managers;
 using SimpleHomeAssistantUi.Services;
@@ -19,7 +20,7 @@ public partial class AccountOptionsDialog : Form
     public void SetService(HttpService service)
     {
         _service = service;
-        var credentials = _service.GetCredentials();
+        var credentials = HttpClientFactory.Credentials;
         _lblUser.Text = credentials.User;
         _lblPassword.Text = credentials.Password;
     }
@@ -40,12 +41,12 @@ public partial class AccountOptionsDialog : Form
         Close();
     }
 
-    private void _btnDelete_Click(object sender, EventArgs e)
-    {
-        var res = _service.SendMessage(_service.GetMainEndpoint() + UserConfigurationManager.Get("DeleteAccount"));
+    private async void _btnDelete_Click(object sender, EventArgs e)
+    {using var client = HttpClientFactory.GetClient();
+        var res = await _service.SendMessage(_service.GetMainEndpoint() + UserConfigurationManager.Get("DeleteAccount"), client);
         if (!res) MessageBox.Show("Cannot delete account");
         else
-            _service.SetCredentials(new AuthCredentials("---", "---"));
+            HttpClientFactory.SetCredentials("---","---");
         Close();
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System.Configuration;
 using System.Windows.Forms;
 using Newtonsoft.Json;
+using SimpleHomeAssistantServer.Factories;
 using SimpleHomeAssistantServer.Models;
 using SimpleHomeAssistantUi.Managers;
 using SimpleHomeAssistantUi.Services;
@@ -22,14 +23,16 @@ public partial class AddAccountDialog : Form
         _service = service;
     }
 
-    private void _btnAdd_Click(object sender, EventArgs e)
+    private async void _btnAdd_Click(object sender, EventArgs e)
     {
+        using var client = HttpClientFactory.GetClient();
         var credence = new AuthCredentials(_txtUser.Text, _txtPassword.Text);
-        var res = _service.SendMessage(_service.GetMainEndpoint() + UserConfigurationManager.Get("AddAccount"),
+        var res = await _service.SendMessage(_service.GetMainEndpoint() + UserConfigurationManager.Get("AddAccount"),
+            client,
             JsonSerializer.Serialize(credence));
         if (!res) MessageBox.Show("Cannot add account");
         else
-            _service.SetCredentials(credence);
+            HttpClientFactory.SetCredentials(credence.User, credence.Password);
         Close();
     }
 }

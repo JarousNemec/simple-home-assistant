@@ -1,4 +1,5 @@
 using System.Configuration;
+using SimpleHomeAssistantServer.Factories;
 using SimpleHomeAssistantServer.Models;
 using SimpleHomeAssistantUi.Forms;
 using SimpleHomeAssistantUi.Managers;
@@ -38,19 +39,21 @@ public partial class MainOverview : Form
         return number.ToString().Length == 1 ? $"0{number.ToString()}" : number.ToString();
     }
 
-    private void LoadDevices()
+    private async void LoadDevices()
     {
+        using var client = HttpClientFactory.GetClient();
         var devices =
-            _httpService.DownloadJsonObject<Device[]>(_httpService.GetMainEndpoint() +
-                                                      UserConfigurationManager.Get("AllDevices"));
+            await _httpService.DownloadJsonObject<Device[]>(_httpService.GetMainEndpoint() +
+                                                            UserConfigurationManager.Get("AllDevices"), client);
         if (devices == null) return;
         _loadedDevices = devices.ToList();
         _deviceCardsPanel.LoadDevices(_loadedDevices);
     }
 
-    private void _btnRefresh_Click(object sender, EventArgs e)
+    private async void _btnRefresh_Click(object sender, EventArgs e)
     {
-        _httpService.SendMessage(_httpService.GetMainEndpoint() + UserConfigurationManager.Get("Refresh"));
+        using var client = HttpClientFactory.GetClient();
+        await _httpService.SendMessage(_httpService.GetMainEndpoint() + UserConfigurationManager.Get("Refresh"), client);
         LoadDevices();
     }
 

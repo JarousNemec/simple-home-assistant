@@ -159,7 +159,7 @@ public class MqttManager
     {
         _client.ConnectedAsync += async e =>
         {
-            Console.WriteLine("Connected");
+            Logger.Success("Mqttmanager Connected");
             var topics = new string[] { };
             foreach (var topic in topics)
             {
@@ -170,7 +170,7 @@ public class MqttManager
 
         _client.DisconnectedAsync += e =>
         {
-            Console.WriteLine("Disconnected");
+            Logger.Success("Mqttmanager Disconnected");
             return Task.CompletedTask;
         };
 
@@ -188,10 +188,12 @@ public class MqttManager
             .Build();
         if (_client.IsConnected)
         {
+            Logger.Info($"Mqttmanager pushing: topic = {message.Topic}, payload = {message.Payload}");
             var mqttClientPublishResult = _client.PublishAsync(message).Result;
+            Logger.Warning($"Mqttmanager pushing result of (topic = {message.Topic}, payload = {msg}) = {mqttClientPublishResult.IsSuccess}");
             return mqttClientPublishResult.IsSuccess;
         }
-
+        Logger.Error("Mqttmanager cant publish the msg because client isnt connected!!!");
         return false;
     }
 
@@ -204,13 +206,16 @@ public class MqttManager
         }
         catch (Exception e)
         {
-            Console.WriteLine(e.Message);
+            Logger.Error("Mqttmanager error:"+e.Message);
             Thread.Sleep(2000);
             goto retry;
         }
 
         if (!_client.IsConnected)
+        {
+            Logger.Warning("Mqttmanager retry connect");
             goto retry;
+        }
     }
 
     public void DisconnectFromMqttBroker()

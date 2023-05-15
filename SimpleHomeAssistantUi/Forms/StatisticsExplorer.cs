@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using System.Windows.Forms;
+using SimpleHomeAssistantServer.Factories;
 using SimpleHomeAssistantServer.Models;
 using SimpleHomeAssistantUi.Managers;
 using SimpleHomeAssistantUi.Models;
@@ -30,14 +31,15 @@ public partial class StatisticsExplorer : Form
         SetDataToChart();
     }
 
-    private void SetDataToChart()
+    private async void SetDataToChart()
     {
         if (_actualDevice?.Topic != null && !_statistics.IsDeviceSummarized(_actualDevice.Topic)
                                          && _actualDevice.Profile.PowerConsummationChangeDateWithSetting.Count >
                                          0)
         {
-            var response = _service.SendMessageAndReturnResponseContent(
-                _service.GetMainEndpoint() + UserConfigurationManager.Get("SpecificStatistic"),
+            using var client = HttpClientFactory.GetClient();
+            var response = await _service.SendMessageAndReturnResponseContent(
+                _service.GetMainEndpoint() + UserConfigurationManager.Get("SpecificStatistic"), client,
                 _actualDevice.Topic);
             var data = JsonSerializer.Deserialize<List<DevicePowerStateRecord>>(response);
 
@@ -171,7 +173,7 @@ public partial class StatisticsExplorer : Form
                     new Font(FontFamily.GenericSansSerif, 10), Brushes.Black, 40, 10);
             }
 
-            bmp.Save(dialog.FileName+".bmp");
+            bmp.Save(dialog.FileName + ".bmp");
         }
     }
 

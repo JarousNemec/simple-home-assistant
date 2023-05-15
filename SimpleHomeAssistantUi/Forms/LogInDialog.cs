@@ -1,4 +1,5 @@
 ﻿using System.Windows.Forms;
+using SimpleHomeAssistantServer.Factories;
 using SimpleHomeAssistantServer.Models;
 using SimpleHomeAssistantUi.Services;
 
@@ -20,7 +21,7 @@ public partial class LogInDialog : Form
 
     private void _btnLogIn_Click(object sender, EventArgs e)
     {
-        _service.SetCredentials(new AuthCredentials(_txtUser.Text, _txtPassword.Text));
+        HttpClientFactory.SetCredentials(_txtUser.Text, _txtPassword.Text);
         Close();
     }
 }

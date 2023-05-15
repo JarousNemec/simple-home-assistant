@@ -35,7 +35,7 @@ public class MqttDevicesDiscoveryWorker : MqttWorker
     protected override void SetupRun()
     {
         PublishMqttMessage("cmnd", "tasmotas", "OtaUrl");
-        Console.WriteLine("Discover sent ...");
+        Logger.Warning("Discover sent ...");
     }
 
     protected override void Stop()

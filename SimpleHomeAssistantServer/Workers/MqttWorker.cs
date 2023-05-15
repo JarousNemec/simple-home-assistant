@@ -69,7 +69,7 @@ public abstract class MqttWorker
     {
         _client.ConnectedAsync += async e =>
         {
-            Console.WriteLine("Connected");
+            Logger.Success("Mqttworker Connected");
             foreach (var topic in workingTopics)
             {
                 var topicFilter = new MqttTopicFilterBuilder().WithTopic(topic).Build();
@@ -79,7 +79,7 @@ public abstract class MqttWorker
 
         _client.DisconnectedAsync += e =>
         {
-            Console.WriteLine("Disconnected");
+            Logger.Success("Mqttworker Disconnected");
             _client.ReconnectAsync();
             return Task.CompletedTask;
         };
@@ -100,9 +100,15 @@ public abstract class MqttWorker
             .WithTopic($"{type}/{topic}/{command}")
             .WithPayload(msg)
             .Build();
-        if (!_client.IsConnected) return false;
-        var mqttClientPublishResult = _client.PublishAsync(message).Result;
-        return mqttClientPublishResult.IsSuccess;
+        if (_client.IsConnected)
+        {
+            Logger.Info($"Mqttworker pushing: topic = {message.Topic}, payload = {message.Payload}");
+            var mqttClientPublishResult = _client.PublishAsync(message).Result;
+            Logger.Warning($"Mqttworker pushing result of (topic = {message.Topic}, payload = {msg}) = {mqttClientPublishResult.IsSuccess}");
+            return mqttClientPublishResult.IsSuccess;
+        }
+        Logger.Error("Mqttworker cant publish the msg because client isnt connected!!!");
+        return false;
     }
 
     private JsonObject? ParseMessageToJsonObject(MqttApplicationMessage msg)
@@ -110,7 +116,7 @@ public abstract class MqttWorker
         if (msg.Payload == null)
             return null;
         var payload = Encoding.UTF8.GetString(msg.Payload);
-        Console.WriteLine($"Topic: {msg.Topic} , Message: {payload}");
+        Logger.Info($"Topic: {msg.Topic} , Message: {payload}");
         try
         {
             var data = JsonNode.Parse(payload) as JsonObject;
@@ -118,7 +124,7 @@ public abstract class MqttWorker
         }
         catch (Exception exception)
         {
-            Debug.WriteLine(exception.Message);
+            Logger.Error("Mqttworker error with parsing to json:"+exception.Message);
         }
 
         return null;
@@ -133,12 +139,17 @@ public abstract class MqttWorker
         }
         catch (Exception e)
         {
-            Console.WriteLine(e.Message);
+            Logger.Error("Mqttworker error:"+e.Message);
             Thread.Sleep(500);
             goto retry;
         }
+
         if (!_client.IsConnected)
+        {
+            Logger.Warning("Mqttworker retry connect");
             goto retry;
+        }
+            
     }
 
     private void DisconnectFromMqttBroker()
