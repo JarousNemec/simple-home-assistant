@@ -102,6 +102,7 @@ public partial class StatisticsExplorer : Form
 
             _statistics.AddHourConsumption(device.Topic,
                 new DateTime(record.Date.Year, record.Date.Month, record.Date.Day, record.Date.Hour, 0, 0), tempEnergy);
+            tempEnergy = 0;
             temp = new List<DevicePowerStateRecord>();
         }
     }
