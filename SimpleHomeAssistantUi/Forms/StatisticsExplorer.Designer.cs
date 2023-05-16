@@ -100,6 +100,7 @@ partial class StatisticsExplorer
         // 
         // _btnExportChart
         // 
+        _btnExportChart.Anchor = AnchorStyles.Top | AnchorStyles.Right;
         _btnExportChart.Location = new Point(942, 50);
         _btnExportChart.Name = "_btnExportChart";
         _btnExportChart.Size = new Size(73, 23);
@@ -130,6 +131,7 @@ partial class StatisticsExplorer
         // 
         // _btnMoveForward
         // 
+        _btnMoveForward.Anchor = AnchorStyles.Top | AnchorStyles.Right;
         _btnMoveForward.Location = new Point(968, 74);
         _btnMoveForward.Name = "_btnMoveForward";
         _btnMoveForward.Size = new Size(49, 23);
@@ -151,9 +153,9 @@ partial class StatisticsExplorer
         // _lblRecordInterval
         // 
         _lblRecordInterval.Font = new Font("Segoe UI", 9.75F, FontStyle.Regular, GraphicsUnit.Point);
-        _lblRecordInterval.Location = new Point(372, 74);
+        _lblRecordInterval.Location = new Point(458, 74);
         _lblRecordInterval.Name = "_lblRecordInterval";
-        _lblRecordInterval.Size = new Size(542, 29);
+        _lblRecordInterval.Size = new Size(327, 23);
         _lblRecordInterval.TabIndex = 12;
         _lblRecordInterval.Text = "---------------------";
         _lblRecordInterval.TextAlign = ContentAlignment.MiddleCenter;
@@ -162,7 +164,7 @@ partial class StatisticsExplorer
         // 
         AutoScaleDimensions = new SizeF(7F, 15F);
         AutoScaleMode = AutoScaleMode.Font;
-        ClientSize = new Size(1027, 593);
+        ClientSize = new Size(1026, 593);
         Controls.Add(_lblRecordInterval);
         Controls.Add(_btnMoveBack);
         Controls.Add(_btnMoveForward);

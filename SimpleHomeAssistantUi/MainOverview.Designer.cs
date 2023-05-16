@@ -50,7 +50,7 @@ partial class MainOverview
         _lblDateTime.Anchor = AnchorStyles.Top | AnchorStyles.Right;
         _lblDateTime.AutoSize = true;
         _lblDateTime.Font = new Font("Segoe UI Semibold", 14.25F, FontStyle.Bold, GraphicsUnit.Point);
-        _lblDateTime.Location = new Point(731, 9);
+        _lblDateTime.Location = new Point(559, 9);
         _lblDateTime.Name = "_lblDateTime";
         _lblDateTime.Size = new Size(173, 25);
         _lblDateTime.TabIndex = 0;
@@ -78,11 +78,13 @@ partial class MainOverview
         // 
         // _deviceCardsPanel
         // 
-        _deviceCardsPanel.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+        _deviceCardsPanel.AutoSize = true;
         _deviceCardsPanel.Location = new Point(12, 40);
+        _deviceCardsPanel.MaximumSize = new Size(1222, 800);
+        _deviceCardsPanel.MinimumSize = new Size(500, 300);
         _deviceCardsPanel.Name = "_deviceCardsPanel";
         _deviceCardsPanel.Service = null;
-        _deviceCardsPanel.Size = new Size(892, 679);
+        _deviceCardsPanel.Size = new Size(721, 680);
         _deviceCardsPanel.TabIndex = 5;
         // 
         // _btnRefresh
@@ -109,15 +111,15 @@ partial class MainOverview
         // 
         AutoScaleDimensions = new SizeF(7F, 15F);
         AutoScaleMode = AutoScaleMode.Font;
-        ClientSize = new Size(916, 731);
+        ClientSize = new Size(744, 731);
         Controls.Add(_btnStatistics);
         Controls.Add(_btnRefresh);
         Controls.Add(_deviceCardsPanel);
         Controls.Add(_btnAccount);
         Controls.Add(_btnConfiguration);
         Controls.Add(_lblDateTime);
-        MinimumSize = new Size(570, 770);
         Name = "MainOverview";
+        SizeGripStyle = SizeGripStyle.Hide;
         Text = "MainOverview";
         Load += Form1_Load;
         ResumeLayout(false);
